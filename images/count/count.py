@@ -16,7 +16,8 @@ def main(args):
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
     log.info('Config <%s>', config)
-    return sum([line.count(config.string) for line in open(config.input_file,'r')])
+    with open(config.input_file,'r') as f:
+        return sum([line.count(config.string) for line in f])
 
 
 if __name__=='__main__':
