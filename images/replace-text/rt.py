@@ -22,7 +22,8 @@ def main(args):
     if config.input_file == config.output_file:
         raise ValueError('Input and output files should be different')
     out = open(config.output_file,'w')
-    out.writelines([line.replace(config.search,config.replace) for line in open(config.input_file,'r')])
+    with open(config.input_file,'r') as f:
+        out.writelines([line.replace(config.search,config.replace) for line in f])
     out.close()
     log.debug('File %s created', config.output_file)
     if config.delete:
