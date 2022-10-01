@@ -1,0 +1,133 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: container-templates
+spec:
+  templates:
+  - name: greet
+    inputs:
+      parameters:
+      - {name: bucket-name}
+      - {name: roleARN}
+      - {name: key-prefix, default: ''}
+      - {name: greeting, default: default}
+      - {name: names, default: 'Alice,Bob'}
+    container:
+      image: greetings:latest
+      command: [python, greet.py]
+      args: >-
+        {{=
+          toJson(
+            ["--greeting", "{{inputs.parameters.greeting}}"] +
+            map(sprig.splitList(inputs.parameters.names), {"--name" + #}) +
+            ["--output-file", "/tmp/out.txt"]
+          )
+        }}
+    outputs:
+      artifacts:
+      - name: output-file
+        path: /tmp/out.txt
+        archive:
+          none: {}
+        s3:
+          endpoint: s3.amazonaws.com
+          bucket: "{{inputs.parameters.bucket-name}}"
+          key: >-
+            {{inputs.parameters.key-prefix}}/
+              {{workflow.creationTimestamp.Y}}-
+              {{workflow.creationTimestamp.m}}-
+              {{workflow.creationTimestamp.d}}/
+            {{workflow.name}}/
+            {{pod.name}}.txt
+          roleARN: "{{inputs.parameters.roleARN}}"
+      parameters:
+      - name: key
+        value: >-
+          {{inputs.parameters.key-prefix}}/
+            {{workflow.creationTimestamp.Y}}-
+            {{workflow.creationTimestamp.m}}-
+            {{workflow.creationTimestamp.d}}/
+          {{workflow.name}}/
+          {{pod.name}}.txt
+###############################################################
+
+  - name: replace-text
+    inputs:
+      parameters:
+      - {name: bucket-name}
+      - {name: roleARN}
+      - {name: key}
+      - {name: key-prefix, default: ''}
+      - {name: search, default: default}
+      - {name: replace, default: default}
+      artifacts:
+      - name: input-file
+        path: /tmp/in.txt
+        s3:
+          endpoint: s3.amazonaws.com
+          bucket: "{{inputs.parameters.bucket-name}}"
+          key: "{{inputs.parameters.key}}"
+          roleARN: "{{inputs.parameters.roleARN}}"
+    container:
+      image: replace-text:latest
+      command: [python, rt.py]
+      args:
+      - --input-file
+      - /tmp/in.txt
+      - --output-file
+      - /tmp/out.txt
+      - --search
+      - "{{inputs.parameters.search}}"
+      - --replace
+      - "{{inputs.parameters.replace}}"
+    outputs:
+      artifacts:
+      - name: output-file
+        path: /tmp/out.txt
+        s3:
+          endpoint: s3.amazonaws.com
+          bucket: "{{inputs.parameters.bucket-name}}"
+          key: >-
+            {{inputs.parameters.key-prefix}}/
+              {{workflow.creationTimestamp.Y}}-
+              {{workflow.creationTimestamp.m}}-
+              {{workflow.creationTimestamp.d}}/
+            {{workflow.name}}/
+            {{pod.name}}.txt
+          roleARN: "{{inputs.parameters.roleARN}}"
+      parameters:
+      - name: key
+        value: >-
+          {{inputs.parameters.key-prefix}}/
+            {{workflow.creationTimestamp.Y}}-
+            {{workflow.creationTimestamp.m}}-
+            {{workflow.creationTimestamp.d}}/
+          {{workflow.name}}/
+          {{pod.name}}.txt
+###############################################################
+
+  - name: count
+    inputs:
+      parameters:
+      - {name: bucket-name}
+      - {name: roleARN}
+      - {name: key}
+      - {name: string, default: default}
+      artifacts:
+      - name: input-file
+        path: /tmp/in.txt
+        s3:
+          endpoint: s3.amazonaws.com
+          bucket: "{{inputs.parameters.bucket-name}}"
+          key: "{{inputs.parameters.key}}"
+          roleARN: "{{inputs.parameters.roleARN}}"
+    container:
+      image: count:latest
+      command: [python, count.py]
+      args: ['--input-file', '/tmp/in.txt', '--string', "{{inputs.parameters.string}}", '>/tmp/result', '2>/tmp/err.log']
+    outputs:
+      parameters:
+      - name: number
+        valueFrom:
+          default: '0'
+          path: /tmp/result

@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: script-templates
+spec:
+  templates:
+  - name: sum
+    inputs:
+      parameters:
+      - {name: numbers, default: '["0","0","0"]'}
+    script:
+      image: python:3
+      command: [python]
+      source: |
+        import json
+        numbers = json.loads('{{inputs.parameters.numbers}}')
+        print(sum(map(int,numbers)))
+
+  - name: write-to-db
+    inputs:
+      parameters:
+      - {name: table-name}
+      - {name: db-connection-secret}
+      - {name: sum-hello, default: 'NULL'}
+      - {name: sum-goodbye, default: 'NULL'}
+      artifacts:
+      - name: sql
+        path: /tmp/query.sql
+        raw:
+          data: |
+            CREATE TABLE IF NOT EXISTS {{inputs.parameters.table-name}} (
+              Id int NOT NULL AUTO_INCREMENT,
+              WorkflowName varchar(255) NOT NULL,
+              WorkflowDateTime datetime NOT NULL,
+              SumHello int(32),
+              SumGoodbye int(32),
+              PRIMARY KEY (Id)
+            );
+            INSERT INTO {{inputs.parameters.table-name}} (WorkflowName, WorkflowDateTime, SumHello, SumGoodbye)
+            VALUES (
+              '{{workflow.name}}',
+              '{{workflow.creationTimestamp.Y}}-{{workflow.creationTimestamp.m}}-{{workflow.creationTimestamp.d}} {{workflow.creationTimestamp.H}}:{{workflow.creationTimestamp.M}}:{{workflow.creationTimestamp.S}}',
+              {{inputs.parameters.sum-hello}},
+              {{inputs.parameters.sum-goodbye}}
+            );
+    script:
+      image: mysql:8-debian
+      env:
+      - name: DB_HOST
+        valueFrom:
+          secretKeyRef:
+            name: "{{inputs.parameters.db-connection-secret}}"
+            key: host
+      - name: DB_PORT
+        valueFrom:
+          secretKeyRef:
+            name: "{{inputs.parameters.db-connection-secret}}"
+            key: port
+      - name: DB_NAME
+        valueFrom:
+          secretKeyRef:
+            name: "{{inputs.parameters.db-connection-secret}}"
+            key: database
+      - name: DB_USER
+        valueFrom:
+          secretKeyRef:
+            name: "{{inputs.parameters.db-connection-secret}}"
+            key: user
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: "{{inputs.parameters.db-connection-secret}}"
+            key: password
+      command: [bash]
+      source: |
+        mysql --host=$DB_HOST --port=$DB_PORT --user=$DB_USER --password=$DB_PASSWORD $DB_NAME < /tmp/query.sql

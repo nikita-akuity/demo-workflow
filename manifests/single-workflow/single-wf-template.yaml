@@ -8,17 +8,14 @@ spec:
     parameters:
     - {name: cm-name, value: default-cm}
     - {name: input-payload, value: "[]"}
+
   templates:
   - name: single-wf
     dag:
       tasks:
-      - name: parse-input
-        templateRef:
-          name: demo-templates
-          template: parse-input
       - name: greetings
         templateRef:
-          name: demo-templates
+          name: container-templates
           template: greet
         arguments:
           parameters:
@@ -34,54 +31,90 @@ spec:
                 key: roleARN
           - {name: greeting, value: hello}
           - {name: names, value: "{{item}}"}
-        withParam: "{{tasks.parse-input.outputs.result}}"
+        withParam: "{{workflow.inputs.parameters.input-payload}}"
+
       - name: goodbyes
         templateRef:
-          name: demo-templates
+          name: container-templates
           template: replace-text
         arguments:
           parameters:
+          - name: bucket
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: bucket
+          - name: roleARN
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: roleARN
           - {name: search, value: hello}
           - {name: replace, value: goodbye}
-          - {name: filename, value: "{{item}}"}
-        withParam: "{{tasks.greetings.outputs.parameters.filename}}"
+          - {name: key, value: "{{item}}"}
+        withParam: "{{tasks.greetings.outputs.parameters.key}}"
+
       - name: count-hellos
         templateRef:
-          name: demo-templates
+          name: container-templates
           template: count
         arguments:
           parameters:
+          - name: bucket
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: bucket
+          - name: roleARN
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: roleARN
           - {name: string, value: hello}
-          - {name: filename, value: "{{item}}"}
-        withParam: "{{tasks.greetings.outputs.parameters.filename}}"
+          - {name: key, value: "{{item}}"}
+        withParam: "{{tasks.greetings.outputs.parameters.key}}"
+
       - name: count-goodbyes
         templateRef:
-          name: demo-templates
+          name: container-templates
           template: count
         arguments:
           parameters:
+          - name: bucket
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: bucket
+          - name: roleARN
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: roleARN
           - {name: string, value: goodbye}
-          - {name: filename, value: "{{item}}"}
-        withParam: "{{tasks.goodbyes.outputs.parameters.filename}}"
+          - {name: key, value: "{{item}}"}
+        withParam: "{{tasks.goodbyes.outputs.parameters.key}}"
+
       - name: sum-hellos
         templateRef:
-          name: demo-templates
+          name: script-templates
           template: sum
         arguments:
           parameters:
-          - {name: list, value: "{{tasks.count-hellos.outputs.result}}"}
+          - {name: numbers, value: "{{tasks.count-hellos.outputs.parameters.number}}"}
+
       - name: sum-goodbyes
         templateRef:
-          name: demo-templates
+          name: script-templates
           template: sum
         arguments:
           parameters:
-          - {name: list, value: "{{tasks.count-goodbyes.outputs.result}}"}
+          - {name: numbers, value: "{{tasks.count-goodbyes.outputs.parameters.number}}"}
+
       - name: write-result
         templateRef:
-          name: demo-templates
+          name: script-templates
           template: write-to-db
         arguments:
           parameters:
-          - {name: hello_sum, value: "{{tasks.sum-hellos.outputs.result}}"}
-          - {name: goodbye_sum, value: "{{tasks.sum-goodbyes.outputs.result}}"}
+          - {name: sum-hello, value: "{{tasks.sum-hellos.outputs.result}}"}
+          - {name: sum-goodbye, value: "{{tasks.sum-goodbyes.outputs.result}}"}
