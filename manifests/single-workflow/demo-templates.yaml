@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: demo-templates
+spec:
+  templates:
+  - name: parse-input
+  - name: greet
+    inputs:
+      parameters:
+        - {name: bucket-name}
+        - {name: roleARN}
+        - {name: key-prefix, default: ''}
+        - {name: greeting, default: greeting}
+        - {name: names, default: 'Alice,Bob'}
+    container:
+      image: greetings:latest
+      command: ['python', 'greet.py']
+      args: >-
+        {{=
+          toJson(
+            ["--greeting", "{{inputs.parameters.greeting}}"] +
+            map(sprig.splitList(inputs.parameters.names), {"--name" + #}) +
+            ["--output-file", "/tmp/out.txt"]
+          )
+        }}
+    outputs:
+      artifacts:
+      - name: output-file
+        path: /tmp/out.txt
+        archive:
+          none: {}
+        s3:
+          endpoint: s3.amazonaws.com
+          bucket: "{{inputs.parameters.bucket-name}}"
+          key: >-
+            {{inputs.parameters.key-prefix}}/
+              {{workflow.creationTimestamp.Y}}-
+              {{workflow.creationTimestamp.m}}-
+              {{workflow.creationTimestamp.d}}/
+            {{workflow.name}}/
+            {{pod.name}}.txt
+          roleARN: "{{inputs.parameters.roleARN}}"
+  - name: replace-text
+  - name: count
+  - name: sum
+  - name: write-to-db
