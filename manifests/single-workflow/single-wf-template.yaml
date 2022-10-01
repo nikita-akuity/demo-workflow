@@ -1,0 +1,120 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: single-wf-template
+spec:
+  entrypoint: single-wf
+  arguments:
+    parameters:
+    - {name: cm-name, value: default-cm}
+    - {name: input-payload, value: "[]"}
+
+  templates:
+  - name: single-wf
+    dag:
+      tasks:
+      - name: greetings
+        templateRef:
+          name: container-templates
+          template: greet
+        arguments:
+          parameters:
+          - name: bucket
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: bucket
+          - name: roleARN
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: roleARN
+          - {name: greeting, value: hello}
+          - {name: names, value: "{{item}}"}
+        withParam: "{{workflow.inputs.parameters.input-payload}}"
+
+      - name: goodbyes
+        templateRef:
+          name: container-templates
+          template: replace-text
+        arguments:
+          parameters:
+          - name: bucket
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: bucket
+          - name: roleARN
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: roleARN
+          - {name: search, value: hello}
+          - {name: replace, value: goodbye}
+          - {name: key, value: "{{item}}"}
+        withParam: "{{tasks.greetings.outputs.parameters.key}}"
+
+      - name: count-hellos
+        templateRef:
+          name: container-templates
+          template: count
+        arguments:
+          parameters:
+          - name: bucket
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: bucket
+          - name: roleARN
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: roleARN
+          - {name: string, value: hello}
+          - {name: key, value: "{{item}}"}
+        withParam: "{{tasks.greetings.outputs.parameters.key}}"
+
+      - name: count-goodbyes
+        templateRef:
+          name: container-templates
+          template: count
+        arguments:
+          parameters:
+          - name: bucket
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: bucket
+          - name: roleARN
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: roleARN
+          - {name: string, value: goodbye}
+          - {name: key, value: "{{item}}"}
+        withParam: "{{tasks.goodbyes.outputs.parameters.key}}"
+
+      - name: sum-hellos
+        templateRef:
+          name: script-templates
+          template: sum
+        arguments:
+          parameters:
+          - {name: numbers, value: "{{tasks.count-hellos.outputs.parameters.number}}"}
+
+      - name: sum-goodbyes
+        templateRef:
+          name: script-templates
+          template: sum
+        arguments:
+          parameters:
+          - {name: numbers, value: "{{tasks.count-goodbyes.outputs.parameters.number}}"}
+
+      - name: write-result
+        templateRef:
+          name: script-templates
+          template: write-to-db
+        arguments:
+          parameters:
+          - {name: sum-hello, value: "{{tasks.sum-hellos.outputs.result}}"}
+          - {name: sum-goodbye, value: "{{tasks.sum-goodbyes.outputs.result}}"}
