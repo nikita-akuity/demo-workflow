@@ -83,6 +83,5 @@ jobs:
         git clone https://bot:${{ secrets.DEPLOY_PAT }}@${{ matrix.delivery-repo }} 
         cd ${{ matrix.kustomization-path }}
         kustomize edit set image ${ARR[@]/latest/$TAG}
-        git commit -a -m "Deploy dev: ${ARR[@]/latest/$TAG}"
+        git commit -a -m "Deploy $TAG images to dev"
         git push origin main
-        echo "${ARR[@]/latest/$TAG}"
