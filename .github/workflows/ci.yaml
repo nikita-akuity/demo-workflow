@@ -23,7 +23,7 @@ jobs:
       packages: write
     outputs:
       version: ${{ steps.meta.version }}
-      images: ${{ matrix }}
+      images: ${{ toJSON(matrix) }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
