@@ -77,5 +77,4 @@ jobs:
     - name: Kustomize
       run: |
         set -ex
-        declare -a ARR=$IMAGES
-        echo "${ARR[@]/latest/$TAG}"
+        echo "${IMAGES[@]/latest/$TAG}"
