@@ -76,6 +76,7 @@ jobs:
     - uses: imranismail/setup-kustomize@v1
     - name: Kustomize
       run: |
+        set -ex
         declare -a ARR=$IMAGES
         git config --global user.name "Deploy Bot"
         git config --global user.email "no-reply@akuity.io"
