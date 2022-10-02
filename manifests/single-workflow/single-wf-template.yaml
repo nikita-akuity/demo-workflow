@@ -6,8 +6,8 @@ spec:
   entrypoint: single-wf
   arguments:
     parameters:
-    - {name: cm-name, value: default-cm}
     - {name: input-payload, value: "[]"}
+    - {name: cm-name, value: default-cm}
 
   templates:
   - name: single-wf
