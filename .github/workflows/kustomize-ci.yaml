@@ -1,0 +1,32 @@
+name: Update Kustomize Base
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - manifests/**
+
+jobs:
+  promote-job:
+    name: Update Base
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+        - folder: single-workflow
+          delivery-repo: github.com/nikita-akuity/demo-workflow-delivery
+          kustomization-path: demo-workflow-delivery/single-workflow/base
+    steps:
+    - uses: imranismail/setup-kustomize@v1
+    - name: Kustomize
+      run: |
+        set -ex
+        declare -a ARR=$IMAGES
+        git config --global user.name "Deploy Bot"
+        git config --global user.email "no-reply@akuity.io"
+        git clone https://bot:${{ secrets.DEPLOY_PAT }}@${{ matrix.delivery-repo }} 
+        cd ${{ matrix.kustomization-path }}
+        kustomize edit remove resource "${{ github.server_url }}/${{ github.repository }}//manifests/${{ matrix.folder }}/*" 
+        kustomize edit add resource "${{ github.server_url }}/${{ github.repository }}//manifests/${{ matrix.folder }}/?ref=${{ github.sha }}" 
+        git commit -a -m "Update %{{ matrix.folder }} base to ${{ github.sha }}"
+        git push origin main
