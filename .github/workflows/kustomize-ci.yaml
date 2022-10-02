@@ -25,6 +25,6 @@ jobs:
         git config --global user.email "no-reply@akuity.io"
         git clone https://bot:${{ secrets.DEPLOY_PAT }}@${{ matrix.delivery-repo }} 
         cd ${{ matrix.kustomization-path }}
-        yq -i '.resources[0]="${{ github.server_url }}/${{ github.repository }}//manifests/${{ matrix.folder }}/?ref=${{ github.sha }}" kustomization.yaml
+        yq -i '.resources[0]="${{ github.server_url }}/${{ github.repository }}//manifests/${{ matrix.folder }}/?ref=${{ github.sha }}"' kustomization.yaml
         git commit -a -m "Update ${{ matrix.folder }} base to ${{ github.repository }}@${{ github.sha }}"
         git push origin main
