@@ -13,6 +13,8 @@ configMapGenerator:
     literals:
     - bucket=default
     - roleARN=default
+    - table-name=default
+    - db-connection-secret=db-connection
     options:
       disableNameSuffixHash: true
       labels:

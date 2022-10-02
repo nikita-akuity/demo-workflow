@@ -17,9 +17,9 @@ jobs:
           delivery-repo: github.com/nikita-akuity/demo-workflow-delivery
           kustomization-path: demo-workflow-delivery/single-workflow/base
     steps:
-    - uses: chrisdickinson/setup-yq@v1
+    - uses: chrisdickinson/setup-yq@v1.0.1
       with:
-        yq-version: '4.27.5'
+        yq-version: v4.27.5
     - name: Run yq
       run: |
         set -ex
