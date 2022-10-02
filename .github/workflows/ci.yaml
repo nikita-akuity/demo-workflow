@@ -20,7 +20,7 @@ jobs:
       packages: write
 
     outputs:
-      tags: ${{ steps }}
+      tags: ${{ toJSON(steps) }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
