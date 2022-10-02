@@ -76,4 +76,4 @@ jobs:
     - uses: imranismail/setup-kustomize@v1
     - name: Kustomize
       run: |
-        echo ${IMAGES[@]//latest/$TAG}
+        echo "${IMAGES[@]/latest/$TAG}"
