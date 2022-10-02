@@ -64,9 +64,9 @@ jobs:
     needs: build-job
     env:
       TAG: ${{ needs.build-job.outputs.version }}
-      IMAGES: '("count=ghcr.io/${{ github.repository_owner }}/count:latest" 
+      IMAGES: ("count=ghcr.io/${{ github.repository_owner }}/count:latest" 
                 "greetings=ghcr.io/${{ github.repository_owner }}/greetings:latest" 
-                "replace-text=ghcr.io/${{ github.repository_owner }}/replace-text:latest")'
+                "replace-text=ghcr.io/${{ github.repository_owner }}/replace-text:latest")
     strategy:
       matrix:
         include:
@@ -76,5 +76,6 @@ jobs:
     - uses: imranismail/setup-kustomize@v1
     - name: Kustomize
       run: |
-        ARR=$IMAGES
+        set -ex
+        declare -a ARR=$IMAGES
         echo "${ARR[@]/latest/$TAG}"
