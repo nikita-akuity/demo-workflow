@@ -116,5 +116,15 @@ spec:
           template: write-to-db
         arguments:
           parameters:
+          - name: table-name
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: table-name
+          - name: db-connection-secret}
+            valueFrom:
+              configMapKeyRef:
+                name: "{{workflow.inputs.parameters.cm-name}}"
+                key: dv-connection-secret
           - {name: sum-hello, value: "{{tasks.sum-hellos.outputs.result}}"}
           - {name: sum-goodbye, value: "{{tasks.sum-goodbyes.outputs.result}}"}
