@@ -13,11 +13,8 @@ configurations:
 
 images:
 - name: count
-  newName: ghcr.io/nikita-akuity/count
   newTag: latest
 - name: greetings
-  newName: ghcr.io/nikita-akuity/greetings
   newTag: latest
 - name: replace-text
-  newName: ghcr.io/nikita-akuity/replace-text
   newTag: latest

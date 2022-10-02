@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-job:
-    name: Build, Test and Push Docker Images
+    name: Build, Test and Push
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -59,7 +59,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   promote-job:
-    name: Promote Images to Dev Environment
+    name: Promote Images
     runs-on: ubuntu-latest
     needs: build-job
     env:
@@ -76,5 +76,12 @@ jobs:
     - uses: imranismail/setup-kustomize@v1
     - name: Kustomize
       run: |
-        set -ex
-        echo "${IMAGES[@]/latest/$TAG}"
+        declare -a ARR=$IMAGES
+        git config --global user.name "Deploy Bot"
+        git config --global user.email "no-reply@akuity.io"
+        git clone https://bot:${{ secrets.DEPLOY_PAT }}@${{ matrix.delivery-repo }} 
+        cd ${{ matrix.kustomization-path }}
+        kustomize edit set image ${ARR[@]/latest/$TAG}
+        git commit -a -m "Deploy dev: ${ARR[@]/latest/$TAG}"
+        git push origin main
+        echo "${ARR[@]/latest/$TAG}"
