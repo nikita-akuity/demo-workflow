@@ -34,7 +34,7 @@ jobs:
       - name: Build and test
         uses: docker/build-push-action@v3
         with:
-          context: images/${{ matrix.folder }}
+          context: "{{defaultContext}}:images/${{ matrix.folder }}"
           target: test
           push: false
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.folder }}:test
@@ -42,7 +42,7 @@ jobs:
         id: push-image
         uses: docker/build-push-action@v3
         with:
-          context: images/${{ matrix.folder }}
+          context: "{{defaultContext}}:images/${{ matrix.folder }}"
           target: app
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.folder }}:${{ github.sha }}
