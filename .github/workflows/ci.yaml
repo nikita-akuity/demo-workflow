@@ -27,7 +27,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Docker meta
-        id: meta-${{ matrix.folder }}
+        id: meta
         uses: docker/metadata-action@v4
         with:
           images: |
