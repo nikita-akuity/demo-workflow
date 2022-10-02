@@ -14,13 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [count, greetings, replace-text]
+        include:
+        - {folder: count, image: 'ghcr.io/${{ github.repository_owner }}/count'}
+        - {folder: greetings, image: 'ghcr.io/${{ github.repository_owner }}/greetings'}
+        - {folder: replace-text, image: 'ghcr.io/${{ github.repository_owner }}/replace-text'}
     permissions:
       contents: read
       packages: write
-
     outputs:
-      tags: ${{ toJSON(steps) }}
+      version: ${{ steps.meta.version }}
+      images: ${{ matrix }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -61,7 +64,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-job
     env:
-      TAGS: ${{ needs.build-job.outputs.tags }}
+      TAGS: ${{ needs.build-job.outputs.version }}
+      IMAGES: ${{ needs.build-job.outputs.images }}
     strategy:
       matrix:
         include:
@@ -72,3 +76,5 @@ jobs:
     - name: Kustomize
       run: |
         echo $TAGS
+        echo ----------
+        echo $IMAGES
