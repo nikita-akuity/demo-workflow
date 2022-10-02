@@ -22,8 +22,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      version: ${{ steps.meta.version }}
-      images: ${{ toJSON(matrix) }}
+      version: ${{ steps.meta.outputs.version }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -64,8 +63,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-job
     env:
-      TAGS: ${{ needs.build-job.outputs.version }}
-      IMAGES: ${{ needs.build-job.outputs.images }}
+      TAG: ${{ needs.build-job.outputs.version }}
+      IMAGES: '["count=ghcr.io/${{ github.repository_owner }}/count",
+                "greetings=ghcr.io/${{ github.repository_owner }}/greetings",
+                "replace-text=ghcr.io/${{ github.repository_owner }}/replace-text"]'
     strategy:
       matrix:
         include:
