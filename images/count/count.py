@@ -8,7 +8,7 @@ logging.basicConfig()
 def parse_args(args):
     parser = argparse.ArgumentParser(description='Count a number of lines with <string> in it')
     parser.add_argument('--input-file', '-i', required=True)
-    parser.add_argument('--string', '-s', help="String to search", default='hello')
+    parser.add_argument('--string', '-s', help="String to search", default='Hello')
     return parser.parse_args(args)
 
 def main(args):
