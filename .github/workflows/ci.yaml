@@ -76,4 +76,5 @@ jobs:
     - uses: imranismail/setup-kustomize@v1
     - name: Kustomize
       run: |
-        echo "${IMAGES[@]/latest/$TAG}"
+        ARR=$IMAGES
+        echo "${ARR[@]/latest/$TAG}"
