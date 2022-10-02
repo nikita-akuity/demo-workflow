@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: wh-dep
+      eventSourceName: webhook
+      eventName: greet-and-count
+  triggers:
+    - template:
+        name: webhook-workflow-trigger
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: greet-and-count-
+              spec:
+                workflowTemplateRef:
+                  name: single-wf-template
+          parameters:
+            - src:
+                dependencyName: wh-dep
+                dataKey: body
+              dest: spec.arguments.parameters.0.value

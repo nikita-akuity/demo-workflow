@@ -5,6 +5,8 @@ resources:
 - container-templates.yaml
 - script-templates.yaml
 - single-wf-template.yaml
+- eventsource.yaml
+- sensor.yaml
 
 configurations:
 - kustomizeconfig/workflow.yaml
