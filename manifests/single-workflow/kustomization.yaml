@@ -8,6 +8,16 @@ resources:
 - eventsource.yaml
 - sensor.yaml
 
+configMapGenerator:
+  - name: default-cm
+    literals:
+    - bucket=default
+    - roleARN=default
+    options:
+      disableNameSuffixHash: true
+      labels:
+         workflows.argoproj.io/configmap-type: Parameter
+
 configurations:
 - kustomizeconfig/workflow.yaml
 
