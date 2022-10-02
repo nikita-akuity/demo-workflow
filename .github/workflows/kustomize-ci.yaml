@@ -18,15 +18,17 @@ jobs:
           kustomization-path: demo-workflow-delivery/single-workflow/base
     steps:
     - uses: imranismail/setup-kustomize@v1
+      with:
+        github-token: ${{ secrets.DEPLOY_PAT }}
+        kustomize-version: '>=4.5.7'
     - name: Kustomize
       run: |
         set -ex
-        declare -a ARR=$IMAGES
         git config --global user.name "Deploy Bot"
         git config --global user.email "no-reply@akuity.io"
         git clone https://bot:${{ secrets.DEPLOY_PAT }}@${{ matrix.delivery-repo }} 
         cd ${{ matrix.kustomization-path }}
         kustomize edit remove resource "${{ github.server_url }}/${{ github.repository }}//manifests/${{ matrix.folder }}/*" 
         kustomize edit add resource "${{ github.server_url }}/${{ github.repository }}//manifests/${{ matrix.folder }}/?ref=${{ github.sha }}" 
-        git commit -a -m "Update %{{ matrix.folder }} base to ${{ github.sha }}"
+        git commit -a -m "Update ${{ matrix.folder }} base to ${{ github.repository }}@${{ github.sha }}"
         git push origin main
