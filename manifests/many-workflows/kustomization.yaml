@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
 - hello-wf-template.yaml
 - goodbye-wf-template.yaml
+- sqs-eventsource.yaml
+- sqs-sensor.yaml
 
 configMapGenerator:
 - name: default-cm
