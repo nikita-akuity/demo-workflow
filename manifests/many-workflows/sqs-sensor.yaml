@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: aws-sqs
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: sqs-dep
+      eventSourceName: s3-new-files-sqs
+      eventName: example
+  triggers:
+  - template:
+      name: webhook-workflow-trigger
+      argoWorkflow:
+        operation: submit
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: goodbye-
+            spec:
+              workflowTemplateRef:
+                name: goodbye-wf-template
+        parameters:
+          - src:
+              dependencyName: sqs-dep
+              dataKey: body
+            dest: spec.arguments.parameters.0.value

@@ -1,0 +1,11 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: s3-new-files-sqs
+spec:
+  sqs:
+    s3-new-files:
+      jsonBody: true
+      region: "us-east-1"
+      queue: "my-fake-queue-2"
+      waitTimeSeconds: 20
