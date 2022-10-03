@@ -73,9 +73,9 @@ jobs:
       matrix:
         include:
         - delivery-repo: github.com/nikita-akuity/demo-workflow-delivery.git
-          delivery-path: demo-workflow-delivery/single-workflow
+          delivery-path: demo-workflow-delivery/apps/single-workflow
         - delivery-repo: github.com/nikita-akuity/demo-workflow-delivery.git
-          delivery-path: demo-workflow-delivery/many-workflows
+          delivery-path: demo-workflow-delivery/apps/many-workflows
     steps:
     - name: Configure target
       # when ref_type=='tag' deploy to stage, otherwise to dev

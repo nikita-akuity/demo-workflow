@@ -15,10 +15,10 @@ jobs:
         include:
         - folder: single-workflow
           delivery-repo: github.com/nikita-akuity/demo-workflow-delivery
-          kustomization-path: demo-workflow-delivery/single-workflow/base
+          kustomization-path: demo-workflow-delivery/apps/single-workflow/base
         - folder: many-workflows
           delivery-repo: github.com/nikita-akuity/demo-workflow-delivery
-          kustomization-path: demo-workflow-delivery/many-workflows/base
+          kustomization-path: demo-workflow-delivery/apps/many-workflows/base
     steps:
     - uses: chrisdickinson/setup-yq@v1.0.1
       with:
