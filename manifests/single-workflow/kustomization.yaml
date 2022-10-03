@@ -5,8 +5,8 @@ resources:
 - container-templates.yaml
 - script-templates.yaml
 - single-wf-template.yaml
-- eventsource.yaml
-- sensor.yaml
+- wh-eventsource.yaml
+- wh-sensor.yaml
 
 configMapGenerator:
 - name: default-cm
