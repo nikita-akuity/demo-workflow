@@ -3,8 +3,6 @@ kind: Sensor
 metadata:
   name: webhook
 spec:
-  template:
-    serviceAccountName: operate-workflow-sa
   dependencies:
     - name: wh-dep
       eventSourceName: webhook
