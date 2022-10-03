@@ -81,8 +81,10 @@ jobs:
       run: |
         if ${{ github.ref_type=='tag' }}; then
           echo "::set-output name=path::${{ matrix.delivery-path }}/env/stage"
+          echo "::set-output name=env::stage"
         else
           echo "::set-output name=path::${{ matrix.delivery-path }}/env/dev"
+          echo "::set-output name=env::dev"
         fi
 
     - uses: imranismail/setup-kustomize@v1
@@ -95,5 +97,5 @@ jobs:
         git clone https://bot:${{ secrets.DEPLOY_PAT }}@${{ matrix.delivery-repo }} 
         cd ${{ steps.target.outputs.path }}
         kustomize edit set image ${ARR[@]/latest/$TAG}
-        git commit -a -m "Deploy $TAG images to dev"
+        git commit -a -m "Deploy $TAG images to ${{ steps.target.outputs.env }}"
         git push origin main
