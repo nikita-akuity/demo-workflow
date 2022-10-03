@@ -1,4 +1,4 @@
-# Prints a number of lines with <string> in it
+# Prints a total number of <string>  appearances in the input file
 import sys
 import argparse
 import logging
