@@ -28,6 +28,8 @@ secretGenerator:
   - DB_NAME=database_name
   - DB_USER=database_user
   - DB_PASSWORD=secretPassW0rd
+  options:
+    disableNameSuffixHash: true
   
 configurations:
 - kustomizeconfig/workflow.yaml
