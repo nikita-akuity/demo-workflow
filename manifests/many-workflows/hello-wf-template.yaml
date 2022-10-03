@@ -3,4 +3,64 @@ kind: WorkflowTemplate
 metadata:
   name: hello-wf-template
 spec:
-  templates: []
+  entrypoint: hello-wf
+  arguments:
+    parameters:
+    - {name: cm-name, value: default-cm}
+    - {name: input-payload, value: '[]'}
+
+  templates:
+  - name: hello-wf
+    template: greet
+    arguments:
+      parameters:
+      - name: bucket
+        valueFrom:
+          configMapKeyRef:
+            name: "{{workflow.inputs.parameters.cm-name}}"
+            key: bucket
+      - name: roleARN
+        valueFrom:
+          configMapKeyRef:
+            name: "{{workflow.inputs.parameters.cm-name}}"
+            key: roleARN
+      - {name: greeting, value: hello}
+      - {name: names, value: "{{item}}"}
+    withParam: "{{workflow.inputs.parameters.input-payload}}"
+
+  - name: greet
+    inputs:
+      parameters:
+      - {name: bucket-name}
+      - {name: roleARN}
+      - {name: key-prefix, default: ''}
+      - {name: greeting, default: default}
+      - {name: names, default: 'Alice,Bob'}
+    container:
+      image: greetings:latest
+      command: [python, greet.py]
+      args: >-
+        {{=
+          toJson(
+            ["--greeting", "{{inputs.parameters.greeting}}"] +
+            map(sprig.splitList(inputs.parameters.names), {"--name" + #}) +
+            ["--output-file", "/tmp/out.txt"]
+          )
+        }}
+    outputs:
+      artifacts:
+      - name: output-file
+        path: /tmp/out.txt
+        archive:
+          none: {}
+        s3:
+          endpoint: s3.amazonaws.com
+          bucket: "{{inputs.parameters.bucket-name}}"
+          key: >-
+            {{inputs.parameters.key-prefix}}/
+              {{workflow.creationTimestamp.Y}}-
+              {{workflow.creationTimestamp.m}}-
+              {{workflow.creationTimestamp.d}}/
+            {{workflow.name}}/
+            {{pod.name}}.txt
+          roleARN: "{{inputs.parameters.roleARN}}"
