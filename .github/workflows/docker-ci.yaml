@@ -74,6 +74,8 @@ jobs:
         include:
         - delivery-repo: github.com/nikita-akuity/demo-workflow-delivery.git
           delivery-path: demo-workflow-delivery/single-workflow
+        - delivery-repo: github.com/nikita-akuity/demo-workflow-delivery.git
+          delivery-path: demo-workflow-delivery/many-workflows
     steps:
     - name: Configure target
       # when ref_type=='tag' deploy to stage, otherwise to dev
