@@ -16,3 +16,14 @@ configMapGenerator:
     disableNameSuffixHash: true
     labels:
         workflows.argoproj.io/configmap-type: Parameter
+
+configurations:
+- kustomizeconfig/workflow.yaml
+
+images:
+- name: count
+  newTag: latest
+- name: greetings
+  newTag: latest
+- name: replace-text
+  newTag: latest
