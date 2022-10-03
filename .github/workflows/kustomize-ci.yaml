@@ -21,6 +21,11 @@ jobs:
           delivery-repo: github.com/nikita-akuity/demo-workflow-delivery
           kustomization-path: demo-workflow-delivery/apps/many-workflows/base
     steps:
+    - uses: imranismail/setup-kustomize@v1
+    - name: Test manifests
+      run: |
+        cd manifests/${{ matrix.folder }}
+        kustomize build . > /tmp/${{ matrix.folder }}.yaml
     - uses: chrisdickinson/setup-yq@v1.0.1
       with:
         yq-version: v4.27.5
