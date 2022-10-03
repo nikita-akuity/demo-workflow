@@ -4,3 +4,15 @@ kind: Kustomization
 resources:
 - hello-wf-template.yaml
 - goodbye-wf-template.yaml
+
+configMapGenerator:
+- name: default-cm
+  literals:
+  - bucket=default
+  - roleARN=default
+  - table-name=default
+  - db-connection-secret=db-connection-example
+  options:
+    disableNameSuffixHash: true
+    labels:
+        workflows.argoproj.io/configmap-type: Parameter
