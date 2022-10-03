@@ -79,7 +79,7 @@ jobs:
       # when ref_type=='tag' deploy to stage, otherwise to dev
       id: target
       run: |
-        if ${{ githun.ref_type=='tag' }}; then
+        if ${{ github.ref_type=='tag' }}; then
           echo "::set-output name=path::${{ matrix.delivery-path }}/env/stage"
         else
           echo "::set-output name=path::${{ matrix.delivery-path }}/env/dev"
