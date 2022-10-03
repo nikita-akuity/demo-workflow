@@ -3,8 +3,6 @@ kind: Sensor
 metadata:
   name: aws-sqs
 spec:
-  template:
-    serviceAccountName: operate-workflow-sa
   dependencies:
     - name: sqs-dep
       eventSourceName: s3-new-files-sqs
