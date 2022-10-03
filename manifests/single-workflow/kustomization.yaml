@@ -9,17 +9,26 @@ resources:
 - sensor.yaml
 
 configMapGenerator:
-  - name: default-cm
-    literals:
-    - bucket=default
-    - roleARN=default
-    - table-name=default
-    - db-connection-secret=db-connection
-    options:
-      disableNameSuffixHash: true
-      labels:
-         workflows.argoproj.io/configmap-type: Parameter
+- name: default-cm
+  literals:
+  - bucket=default
+  - roleARN=default
+  - table-name=default
+  - db-connection-secret=db-connection-example
+  options:
+    disableNameSuffixHash: true
+    labels:
+        workflows.argoproj.io/configmap-type: Parameter
 
+secretGenerator:
+- name: db-connection-example
+  literals:
+  - DB_HOST=db.hostnam
+  - DB_PORT=3600
+  - DB_NAME=database_name
+  - DB_USER=database_user
+  - DB_PASSWORD=secretPassW0rd
+  
 configurations:
 - kustomizeconfig/workflow.yaml
 
