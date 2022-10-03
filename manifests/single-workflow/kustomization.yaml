@@ -12,6 +12,7 @@ configMapGenerator:
 - name: default-cm
   literals:
   - bucket=default
+  - bucket-key=single-wf
   - roleARN=default
   - table-name=default
   - db-connection-secret=db-connection-example
