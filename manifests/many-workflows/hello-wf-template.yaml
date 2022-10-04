@@ -39,14 +39,13 @@ spec:
     container:
       image: greetings:latest
       command: [python, greet.py]
-      args: >-
-        {{=
-          toJson(
-            ["--greeting", "{{inputs.parameters.greeting}}"] +
-            map(sprig.splitList(inputs.parameters.names), {"--name" + #}) +
-            ["--output-file", "/tmp/out.txt"]
-          )
-        }}
+      args:
+      - --names
+      - "{{inputs.parameters.names}}"
+      - --greeting
+      - "{{inputs.parameters.greeting}}"
+      - --output-file
+      - /tmp/out.txt
     outputs:
       artifacts:
       - name: output-file
