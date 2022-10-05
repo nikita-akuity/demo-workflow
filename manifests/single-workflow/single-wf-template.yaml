@@ -21,72 +21,31 @@ spec:
  
   templates:
   - name: single-wf
-    dag:
-      tasks:
-      - name: greetings
-        templateRef:
-          name: container-templates
-          template: greet
+    steps:
+    - - name: process-item
+        template: branch
         arguments:
           parameters:
-          - {name: greeting, value: hello}
           - {name: names, value: "{{item}}"}
         withParam: "{{workflow.parameters.input-payload}}"
 
-      - name: goodbyes
-        depends: greetings
-        templateRef:
-          name: container-templates
-          template: replace-text
-        arguments:
-          parameters:
-          - {name: search, value: hello}
-          - {name: replace, value: goodbye}
-          - {name: input-key, value: "{{item}}"}
-        withParam: "{{tasks.greetings.outputs.parameters.key}}"
-
-      - name: count-hellos
-        depends: greetings
-        templateRef:
-          name: container-templates
-          template: count
-        arguments:
-          parameters:
-          - {name: string, value: hello}
-          - {name: input-key, value: "{{item}}"}
-        withParam: "{{tasks.greetings.outputs.parameters.key}}"
-
-      - name: count-goodbyes
-        depends: goodbyes
-        templateRef:
-          name: container-templates
-          template: count
-        arguments:
-          parameters:
-          - {name: string, value: goodbye}
-          - {name: input-key, value: "{{item}}"}
-        withParam: "{{tasks.goodbyes.outputs.parameters.key}}"
-
-      - name: sum-hellos
-        depends: count-hellos
+    - - name: sum-hellos
         templateRef:
           name: script-templates
           template: sum
         arguments:
           parameters:
-          - {name: numbers, value: "{{tasks.count-hellos.outputs.parameters.number}}"}
+          - {name: numbers, value: "{{steps.process-item.outputs.parameters.count-hellos}}"}
 
       - name: sum-goodbyes
-        depends: count-goodbyes
         templateRef:
           name: script-templates
           template: sum
         arguments:
           parameters:
-          - {name: numbers, value: "{{tasks.count-goodbyes.outputs.parameters.number}}"}
+          - {name: numbers, value: "{{steps.process-item.outputs.parameters.count-goodbyes}}"}
 
-      - name: write-result
-        depends: "sum-hellos && sum-goodbyes"
+    - - name: write-result
         templateRef:
           name: script-templates
           template: write-to-db
@@ -96,5 +55,57 @@ spec:
             value: "{{workflow.parameters.mysql-table-name}}"
           - name: db-connection-secret
             value: "{{workflow.parameters.mysql-connection-secret}}"
-          - {name: sum-hello, value: "{{tasks.sum-hellos.outputs.result}}"}
-          - {name: sum-goodbye, value: "{{tasks.sum-goodbyes.outputs.result}}"}
+          - {name: sum-hello, value: "{{steps.sum-hellos.outputs.result}}"}
+          - {name: sum-goodbye, value: "{{steps.sum-goodbyes.outputs.result}}"}
+
+  - name: branch
+    inputs:
+      parameters:
+      - {name: names}
+    steps:
+    - - name: hellos
+        templateRef:
+          name: container-templates
+          template: greet
+        arguments:
+          parameters:
+          - {name: greeting, value: hello}
+          - {name: names, value: "{{inputs.parameters.names}}"}
+    - - name: goodbyes
+        templateRef:
+          name: container-templates
+          template: replace-text
+        arguments:
+          parameters:
+          - {name: search, value: hello}
+          - {name: replace, value: goodbye}
+          - {name: input-key, value: "{{item}}"}
+          artifacts:
+          - name: input-file
+            from: "{{steps.hellos.outputs.artifacts.output-file}}"    
+    - - name: count-hellos
+        templateRef:
+          name: container-templates
+          template: count
+        arguments:
+          parameters:
+          - {name: string, value: hello}
+          artifacts:
+          - name: input-file
+            from: "{{steps.hellos.outputs.artifacts.output-file}}"    
+      - name: count-goodbyes
+        templateRef:
+          name: container-templates
+          template: count
+        arguments:
+          parameters:
+          - {name: string, value: goodbye}
+          artifacts:
+          - name: input-file
+            from: "{{steps.goodbyes.outputs.artifacts.output-file}}"
+    outputs:
+      parameters:
+      - name: count-hellos
+        value: "{{steps.count-hellos.outputs.result}}"
+      - name: count-goodbyes
+        value: "{{steps.count-goodbyes.outputs.result}}"

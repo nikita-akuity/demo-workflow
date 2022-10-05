@@ -24,11 +24,7 @@ spec:
       artifacts:
       - name: output-file
         path: /tmp/out.txt
-        s3:
-          key: "{{pod.name}}.txt"
-      parameters:
-      - name: key
-        value: "{{pod.name}}.txt"
+
 ###############################################################
 
   - name: replace-text
@@ -41,8 +37,6 @@ spec:
       artifacts:
       - name: input-file
         path: /tmp/in.txt
-        s3:
-          key: "{{inputs.parameters.input-key}}"
     container:
       image: replace-text:latest
       command: [python, rt.py]
@@ -69,13 +63,10 @@ spec:
   - name: count
     inputs:
       parameters:
-      - {name: input-key}
       - {name: string, default: default}
       artifacts:
       - name: input-file
         path: /tmp/in.txt
-        s3:
-          key: "{{inputs.parameters.input-key}}"
     container:
       image: count:latest
       command: [python, count.py]

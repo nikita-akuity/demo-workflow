@@ -8,4 +8,4 @@ s3:
       {{workflow.creationTimestamp.Y}}-
       {{workflow.creationTimestamp.m}}-
       {{workflow.creationTimestamp.d}}/
-    {{workflow.name}}
+    {{workflow.name}}/{{pod.name}}
