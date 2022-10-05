@@ -11,4 +11,3 @@ literals:
 - key-prefix=my-workflow
 - table-name=results
 - db-connection-secret=example-db-connect
-

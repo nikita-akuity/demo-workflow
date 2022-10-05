@@ -11,4 +11,3 @@ literals:
 - DB_NAME=database_name
 - DB_USER=database_user
 - DB_PASSWORD=secretPassW0rd
-
