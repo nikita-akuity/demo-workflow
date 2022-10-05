@@ -24,25 +24,11 @@ spec:
       artifacts:
       - name: output-file
         path: /tmp/out.txt
-        archive:
-          none: {}
         s3:
-          key: >-
-            {{inputs.parameters.key-prefix}}/
-              {{workflow.creationTimestamp.Y}}-
-              {{workflow.creationTimestamp.m}}-
-              {{workflow.creationTimestamp.d}}/
-            {{workflow.name}}/
-            {{pod.name}}.txt
+          key: "{{pod.name}}.txt"
       parameters:
       - name: key
-        value: >-
-          {{inputs.parameters.key-prefix}}/
-            {{workflow.creationTimestamp.Y}}-
-            {{workflow.creationTimestamp.m}}-
-            {{workflow.creationTimestamp.d}}/
-          {{workflow.name}}/
-          {{pod.name}}.txt
+        value: "{{pod.name}}.txt"
 ###############################################################
 
   - name: replace-text
@@ -74,22 +60,10 @@ spec:
       - name: output-file
         path: /tmp/out.txt
         s3:
-          key: >-
-            {{inputs.parameters.key-prefix}}/
-              {{workflow.creationTimestamp.Y}}-
-              {{workflow.creationTimestamp.m}}-
-              {{workflow.creationTimestamp.d}}/
-            {{workflow.name}}/
-            {{pod.name}}.txt
+          key: "{{pod.name}}.txt"
       parameters:
       - name: key
-        value: >-
-          {{inputs.parameters.key-prefix}}/
-            {{workflow.creationTimestamp.Y}}-
-            {{workflow.creationTimestamp.m}}-
-            {{workflow.creationTimestamp.d}}/
-          {{workflow.name}}/
-          {{pod.name}}.txt
+        value: " {{pod.name}}.txt"
 ###############################################################
 
   - name: count
@@ -101,7 +75,7 @@ spec:
       - name: input-file
         path: /tmp/in.txt
         s3:
-          key: "{{inputs.parameters.key}}"
+          key: "{{inputs.parameters.input-key}}"
     container:
       image: count:latest
       command: [python, count.py]

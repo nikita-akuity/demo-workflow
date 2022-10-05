@@ -23,11 +23,6 @@ spec:
           template: greet
         arguments:
           parameters:
-          - name: key-prefix
-            valueFrom:
-              configMapKeyRef:
-                name: "{{workflow.parameters.cm-name}}"
-                key: key-prefix
           - {name: greeting, value: hello}
           - {name: names, value: "{{item}}"}
         withParam: "{{workflow.parameters.input-payload}}"
@@ -39,11 +34,6 @@ spec:
           template: replace-text
         arguments:
           parameters:
-          - name: key-prefix
-            valueFrom:
-              configMapKeyRef:
-                name: "{{workflow.parameters.cm-name}}"
-                key: key-prefix
           - {name: search, value: hello}
           - {name: replace, value: goodbye}
           - {name: input-key, value: "{{item}}"}

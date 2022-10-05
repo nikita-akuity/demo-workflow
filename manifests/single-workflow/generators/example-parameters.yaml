@@ -8,6 +8,5 @@ options:
   labels:
       workflows.argoproj.io/configmap-type: Parameter
 literals:
-- key-prefix=my-workflow
 - table-name=results
 - db-connection-secret=example-db-connect
