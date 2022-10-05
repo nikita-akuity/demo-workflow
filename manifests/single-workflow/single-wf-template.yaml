@@ -33,6 +33,7 @@ spec:
         withParam: "{{workflow.inputs.parameters.input-payload}}"
 
       - name: goodbyes
+        depends: greetings
         templateRef:
           name: container-templates
           template: replace-text
@@ -49,6 +50,7 @@ spec:
         withParam: "{{tasks.greetings.outputs.parameters.key}}"
 
       - name: count-hellos
+        depends: greetings
         templateRef:
           name: container-templates
           template: count
@@ -59,6 +61,7 @@ spec:
         withParam: "{{tasks.greetings.outputs.parameters.key}}"
 
       - name: count-goodbyes
+        depends: goodbyes
         templateRef:
           name: container-templates
           template: count
@@ -69,6 +72,7 @@ spec:
         withParam: "{{tasks.goodbyes.outputs.parameters.key}}"
 
       - name: sum-hellos
+        depends: count-hellos
         templateRef:
           name: script-templates
           template: sum
@@ -77,6 +81,7 @@ spec:
           - {name: numbers, value: "{{tasks.count-hellos.outputs.parameters.number}}"}
 
       - name: sum-goodbyes
+        depends: count-goodbyes
         templateRef:
           name: script-templates
           template: sum
@@ -85,6 +90,7 @@ spec:
           - {name: numbers, value: "{{tasks.count-goodbyes.outputs.parameters.number}}"}
 
       - name: write-result
+        depends: "sum-hellos && sum-goodbyes"
         templateRef:
           name: script-templates
           template: write-to-db
