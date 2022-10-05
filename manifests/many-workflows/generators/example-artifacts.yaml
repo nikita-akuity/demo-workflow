@@ -1,0 +1,10 @@
+apiVersion: builtin
+kind: ConfigMapGenerator
+behavior: create
+metadata:
+  name: example-artifact-repositories
+options:
+  disableNameSuffixHash: true
+files:
+  - example-hello-s3=artifact-repositories/example-hello-s3.yaml
+  - example-goodbye-s3=artifact-repositories/example-goodbye-s3.yaml

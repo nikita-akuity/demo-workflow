@@ -1,0 +1,7 @@
+s3:
+  endpoint: s3.amazonaws.com
+  bucket: example-bucket-name
+  region: us-west-1
+  useSDKCreds: true
+  keyFormat: "prefix/hellos\
+    /{{pod.name}}"

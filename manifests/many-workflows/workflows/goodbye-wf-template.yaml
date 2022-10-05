@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: goodbye-wf-template
+spec:
+  artifactRepositoryRef:
+    configMap: example-artifact-repositories
+    key: example-goodbye-s3
+  entrypoint: goodbye-wf
+  arguments:
+    parameters:
+    - {name: cm-name, value: default-cm}
+    - {name: file, value: ''}
+ 
+  templates:
+  - name: goodbye-wf
+    template: replace-text
+    arguments:
+      parameters:
+      - name: file
+        value: "{{workflow.parameters.input-payload}}"
+      - {name: search, value: hello}
+      - {name: replace, value: goodbye}
+
+  - name: replace-text
+    arguments:
+      parameters:
+      - {name: search, value: hello}
+      - {name: replace, value: goodbye}
+      artifacts:
+      - name: input-file
+        path: /tmp/in.txt
+        s3:
+          key: "{{workflow.parameters.file}}"
+    container:
+      image: replace-text:latest
+      command: [python, rt.py]
+      args:
+      - --input-file
+      - /tmp/in.txt
+      - --output-file
+      - /tmp/out.txt
+      - --search
+      - "{{inputs.parameters.search}}"
+      - --replace
+      - "{{inputs.parameters.replace}}"
+    outputs:
+      artifacts:
+      - name: output-file
+        path: /tmp/out.txt

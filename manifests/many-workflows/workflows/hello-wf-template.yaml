@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: hello-wf-template
+spec:
+  artifactRepositoryRef:
+    configMap: example-artifact-repositories
+    key: example-hello-s3
+  entrypoint: hello-wf
+  arguments:
+    parameters:
+    - {name: names, value: ''}
+
+  templates:
+  - name: greet
+    arguments:
+      parameters:
+      - {name: greeting, value: hello}
+      - {name: names, default: "{{workflow.parameters.names}}"}
+    container:
+      image: greetings:latest
+      command: [python, greet.py]
+      args:
+      - --names
+      - "{{inputs.parameters.names}}"
+      - --greeting
+      - "{{inputs.parameters.greeting}}"
+      - --output-file
+      - /tmp/out.txt
+    outputs:
+      artifacts:
+      - name: output-file
+        path: /tmp/out.txt
+        archive:
+          none: {}
