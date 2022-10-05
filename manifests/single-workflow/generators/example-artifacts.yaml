@@ -2,10 +2,10 @@ apiVersion: builtin
 kind: ConfigMapGenerator
 behavior: create
 metadata:
-  name: example-artifacts
+  name: example-artifact-repositories
 options:
   disableNameSuffixHash: true
   annotations:
     workflows.argoproj.io/default-artifact-repository: example-s3
 files:
-  - example-s3=artifacts/example-s3-artifact.yaml
+  - example-s3=artifact-repositories/example-s3.yaml
