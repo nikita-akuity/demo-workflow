@@ -26,11 +26,11 @@ spec:
           - name: key-prefix
             valueFrom:
               configMapKeyRef:
-                name: "{{workflow.inputs.parameters.cm-name}}"
+                name: "{{workflow.parameters.cm-name}}"
                 key: key-prefix
           - {name: greeting, value: hello}
           - {name: names, value: "{{item}}"}
-        withParam: "{{workflow.inputs.parameters.input-payload}}"
+        withParam: "{{workflow.parameters.input-payload}}"
 
       - name: goodbyes
         depends: greetings
@@ -42,7 +42,7 @@ spec:
           - name: key-prefix
             valueFrom:
               configMapKeyRef:
-                name: "{{workflow.inputs.parameters.cm-name}}"
+                name: "{{workflow.parameters.cm-name}}"
                 key: key-prefix
           - {name: search, value: hello}
           - {name: replace, value: goodbye}
@@ -99,12 +99,12 @@ spec:
           - name: table-name
             valueFrom:
               configMapKeyRef:
-                name: "{{workflow.inputs.parameters.cm-name}}"
+                name: "{{workflow.parameters.cm-name}}"
                 key: table-name
           - name: db-connection-secret}
             valueFrom:
               configMapKeyRef:
-                name: "{{workflow.inputs.parameters.cm-name}}"
+                name: "{{workflow.parameters.cm-name}}"
                 key: db-connection-secret
           - {name: sum-hello, value: "{{tasks.sum-hellos.outputs.result}}"}
           - {name: sum-goodbye, value: "{{tasks.sum-goodbyes.outputs.result}}"}

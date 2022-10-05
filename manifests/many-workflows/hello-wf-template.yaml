@@ -17,16 +17,16 @@ spec:
       - name: bucket
         valueFrom:
           configMapKeyRef:
-            name: "{{workflow.inputs.parameters.cm-name}}"
+            name: "{{workflow.parameters.cm-name}}"
             key: bucket
       - name: roleARN
         valueFrom:
           configMapKeyRef:
-            name: "{{workflow.inputs.parameters.cm-name}}"
+            name: "{{workflow.parameters.cm-name}}"
             key: roleARN
       - {name: greeting, value: hello}
       - {name: names, value: "{{item}}"}
-    withParam: "{{workflow.inputs.parameters.input-payload}}"
+    withParam: "{{workflow.parameters.input-payload}}"
 
   - name: greet
     inputs:
