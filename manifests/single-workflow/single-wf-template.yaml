@@ -106,6 +106,8 @@ spec:
     outputs:
       parameters:
       - name: count-hellos
-        value: "{{steps.count-hellos.outputs.result}}"
+        valueFrom:
+          parameter: "{{steps.count-hellos.outputs.result}}"
       - name: count-goodbyes
-        value: "{{steps.count-goodbyes.outputs.result}}"
+        valueFrom:
+          parameter: "{{steps.count-goodbyes.outputs.result}}"

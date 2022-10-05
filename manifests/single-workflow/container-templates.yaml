@@ -24,6 +24,8 @@ spec:
       artifacts:
       - name: output-file
         path: /tmp/out.txt
+        archive:
+          none: {}
 
 ###############################################################
 
@@ -53,11 +55,8 @@ spec:
       artifacts:
       - name: output-file
         path: /tmp/out.txt
-        s3:
-          key: "{{pod.name}}.txt"
-      parameters:
-      - name: key
-        value: " {{pod.name}}.txt"
+        archive:
+          none: {}
 ###############################################################
 
   - name: count
@@ -70,10 +69,4 @@ spec:
     container:
       image: count:latest
       command: [python, count.py]
-      args: ['--input-file', '/tmp/in.txt', '--string', "{{inputs.parameters.string}}", '>/tmp/result', '2>/tmp/err.log']
-    outputs:
-      parameters:
-      - name: number
-        valueFrom:
-          default: '0'
-          path: /tmp/result
+      args: ['--input-file', '/tmp/in.txt', '--string', "{{inputs.parameters.string}}"]
