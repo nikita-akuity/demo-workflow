@@ -7,8 +7,6 @@ spec:
   - name: greet
     inputs:
       parameters:
-      - {name: bucket-name}
-      - {name: roleARN}
       - {name: key-prefix, default: ''}
       - {name: greeting, default: default}
       - {name: names, default: 'Alice,Bob'}
@@ -29,8 +27,6 @@ spec:
         archive:
           none: {}
         s3:
-          endpoint: s3.amazonaws.com
-          bucket: "{{inputs.parameters.bucket-name}}"
           key: >-
             {{inputs.parameters.key-prefix}}/
               {{workflow.creationTimestamp.Y}}-
@@ -38,7 +34,6 @@ spec:
               {{workflow.creationTimestamp.d}}/
             {{workflow.name}}/
             {{pod.name}}.txt
-          roleARN: "{{inputs.parameters.roleARN}}"
       parameters:
       - name: key
         value: >-
@@ -53,9 +48,7 @@ spec:
   - name: replace-text
     inputs:
       parameters:
-      - {name: bucket-name}
-      - {name: roleARN}
-      - {name: key}
+      - {name: input-key}
       - {name: key-prefix, default: ''}
       - {name: search, default: default}
       - {name: replace, default: default}
@@ -63,10 +56,7 @@ spec:
       - name: input-file
         path: /tmp/in.txt
         s3:
-          endpoint: s3.amazonaws.com
-          bucket: "{{inputs.parameters.bucket-name}}"
-          key: "{{inputs.parameters.key}}"
-          roleARN: "{{inputs.parameters.roleARN}}"
+          key: "{{inputs.parameters.input-key}}"
     container:
       image: replace-text:latest
       command: [python, rt.py]
@@ -84,8 +74,6 @@ spec:
       - name: output-file
         path: /tmp/out.txt
         s3:
-          endpoint: s3.amazonaws.com
-          bucket: "{{inputs.parameters.bucket-name}}"
           key: >-
             {{inputs.parameters.key-prefix}}/
               {{workflow.creationTimestamp.Y}}-
@@ -93,7 +81,6 @@ spec:
               {{workflow.creationTimestamp.d}}/
             {{workflow.name}}/
             {{pod.name}}.txt
-          roleARN: "{{inputs.parameters.roleARN}}"
       parameters:
       - name: key
         value: >-
@@ -108,18 +95,13 @@ spec:
   - name: count
     inputs:
       parameters:
-      - {name: bucket-name}
-      - {name: roleARN}
-      - {name: key}
+      - {name: input-key}
       - {name: string, default: default}
       artifacts:
       - name: input-file
         path: /tmp/in.txt
         s3:
-          endpoint: s3.amazonaws.com
-          bucket: "{{inputs.parameters.bucket-name}}"
           key: "{{inputs.parameters.key}}"
-          roleARN: "{{inputs.parameters.roleARN}}"
     container:
       image: count:latest
       command: [python, count.py]

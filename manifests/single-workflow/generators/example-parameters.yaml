@@ -1,0 +1,14 @@
+apiVersion: builtin
+kind: ConfigMapGenerator
+behavior: create
+metadata:
+  name: example-parameters
+options:
+  disableNameSuffixHash: true
+  labels:
+      workflows.argoproj.io/configmap-type: Parameter
+literals:
+- key-prefix=my-workflow
+- table-name=results
+- db-connection-secret=example-db-connect
+
