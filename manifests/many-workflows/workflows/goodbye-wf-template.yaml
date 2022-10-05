@@ -6,27 +6,14 @@ spec:
   artifactRepositoryRef:
     configMap: example-artifact-repositories
     key: example-goodbye-s3
-  entrypoint: goodbye-wf
+  entrypoint: replace-text
   arguments:
     parameters:
-    - {name: cm-name, value: default-cm}
     - {name: file, value: ''}
  
   templates:
-  - name: goodbye-wf
-    template: replace-text
-    arguments:
-      parameters:
-      - name: file
-        value: "{{workflow.parameters.input-payload}}"
-      - {name: search, value: hello}
-      - {name: replace, value: goodbye}
-
   - name: replace-text
     arguments:
-      parameters:
-      - {name: search, value: hello}
-      - {name: replace, value: goodbye}
       artifacts:
       - name: input-file
         path: /tmp/in.txt
@@ -41,9 +28,9 @@ spec:
       - --output-file
       - /tmp/out.txt
       - --search
-      - "{{inputs.parameters.search}}"
+      - hello
       - --replace
-      - "{{inputs.parameters.replace}}"
+      - goodbye
     outputs:
       artifacts:
       - name: output-file
