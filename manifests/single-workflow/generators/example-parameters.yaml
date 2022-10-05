@@ -9,4 +9,3 @@ options:
       workflows.argoproj.io/configmap-type: Parameter
 literals:
 - table-name=results
-- db-connection-secret=example-db-connect

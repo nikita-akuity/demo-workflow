@@ -7,10 +7,16 @@ spec:
   arguments:
     parameters:
     - {name: input-payload, value: "[]"}
-    - {name: cm-name, value: example-parameters}
+    - name: mysql-table-name
+      valueFrom:
+        configMapKeyRef:
+          name: example-parameters
+          key: table-name
+    - name: mysql-connection-secret
+      value: example-db-connect
   
   artifactRepositoryRef:
-    configMap: example-artifacts
+    configMap: example-artifact-repositories
     key: example-s3
  
   templates:
@@ -87,14 +93,8 @@ spec:
         arguments:
           parameters:
           - name: table-name
-            valueFrom:
-              configMapKeyRef:
-                name: "{{workflow.parameters.cm-name}}"
-                key: table-name
+            value: "{{workflow.parameters.mysql-table-name}}"
           - name: db-connection-secret
-            valueFrom:
-              configMapKeyRef:
-                name: "{{workflow.parameters.cm-name}}"
-                key: db-connection-secret
+            value: "{{workflow.parameters.mysql-connection-secret}}"
           - {name: sum-hello, value: "{{tasks.sum-hellos.outputs.result}}"}
           - {name: sum-goodbye, value: "{{tasks.sum-goodbyes.outputs.result}}"}
