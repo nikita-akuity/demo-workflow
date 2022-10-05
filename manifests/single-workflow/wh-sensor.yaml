@@ -19,6 +19,9 @@ spec:
               metadata:
                 generateName: greet-and-count-
               spec:
+                arguments:
+                  parameters:
+                  - {name: input-payload, value: "[]"}
                 workflowTemplateRef:
                   name: single-wf-template
           parameters:
