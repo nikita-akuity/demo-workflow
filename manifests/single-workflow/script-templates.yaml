@@ -46,7 +46,7 @@ spec:
     script:
       image: mysql:8-debian
       envFrom:
-        secretRef:
+      - secretRef:
           name: "{{inputs.parameters.db-connection-secret}}"
       command: [bash]
       source: |
