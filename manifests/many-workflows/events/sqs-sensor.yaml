@@ -4,12 +4,22 @@ metadata:
   name: aws-sqs
 spec:
   dependencies:
-    - name: sqs-dep
-      eventSourceName: s3-new-files-sqs
-      eventName: example
+    - name: sqs-hello-dep
+      eventSourceName: s3-sqs
+      eventName: object-created
+      filters:
+        data:
+        - path: body.Records.0.s3.bucket.name
+          type: string
+          value: ["example-bucket-name"]
+        - path: body.Records.0.s3.object.key
+          type: string
+          value:
+          - "^prefix\/hellos\/"
   triggers:
   - template:
-      name: webhook-workflow-trigger
+      name: sqs-workflow-replace
+      conditions: sqs-hello-dep
       argoWorkflow:
         operation: submit
         source:
@@ -17,12 +27,20 @@ spec:
             apiVersion: argoproj.io/v1alpha1
             kind: Workflow
             metadata:
-              generateName: goodbye-
+              generateName: replace-
             spec:
+              arguments:
+                parameters:
+                - {name: bucket, value: example-bucket}
+                - {name: key, value: ''}
               workflowTemplateRef:
                 name: goodbye-wf-template
         parameters:
-          - src:
-              dependencyName: sqs-dep
-              dataKey: body
-            dest: spec.arguments.parameters.0.value
+        - src:
+            dependencyName: sqs-hello-dep
+            dataKey: body.Records.0.s3.bucket.name
+          dest: spec.arguments.parameters.0.value
+        - src:
+            dependencyName: sqs-hello-dep
+            dataKey: body.Records.0.s3.object.key
+          dest: spec.arguments.parameters.1.value

@@ -3,5 +3,4 @@ s3:
   bucket: example-bucket-name
   region: us-west-1
   useSDKCreds: true
-  keyFormat: "prefix/goodbyes\
-    /{{pod.name}}"
+  keyFormat: "prefix/goodbyes/{{pod.name}}"

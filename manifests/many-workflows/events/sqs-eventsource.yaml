@@ -1,11 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: s3-new-files-sqs
+  name: s3-sqs
 spec:
   sqs:
-    s3-new-files:
+    object-created:
       jsonBody: true
       region: "us-east-1"
-      queue: "my-fake-queue-2"
+      queue: "example-queue"
       waitTimeSeconds: 20
+      filter:
+       expression: "(len(body.Records)==1) && (body.Records[0].eventSource == 'aws:s3') && (body.Records[0].eventName startsWith 'ObjectCreated')"
