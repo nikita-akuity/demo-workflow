@@ -22,10 +22,10 @@ spec:
       - --greeting
       - hello
       - --output-file
-      - /tmp/out.txt
+      - "/tmp/{{pod.name}}.txt"
     outputs:
       artifacts:
       - name: output-file
-        path: /tmp/out.txt
+        path: "/tmp/{{pod.name}}.txt"
         archive:
           none: {}

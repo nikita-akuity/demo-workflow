@@ -3,4 +3,8 @@ s3:
   bucket: example-bucket-name
   region: us-west-1
   useSDKCreds: true
-  keyFormat: "prefix/hellos/{{pod.name}}"
+  keyFormat: "prefix/hellos\
+    /{{workflow.creationTimestamp.Y}}-\
+    {{workflow.creationTimestamp.m}}-\
+    {{workflow.creationTimestamp.d}}\
+    /{{workflow.creationTimestamp.H}}"

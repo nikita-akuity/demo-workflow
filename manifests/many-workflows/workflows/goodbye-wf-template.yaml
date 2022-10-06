@@ -28,7 +28,7 @@ spec:
       - --input-file
       - /tmp/in.txt
       - --output-file
-      - /tmp/out.txt
+      - "/tmp/{{pod.name}}.txt"
       - --search
       - hello
       - --replace
@@ -36,4 +36,6 @@ spec:
     outputs:
       artifacts:
       - name: output-file
-        path: /tmp/out.txt
+        path: "/tmp/{{pod.name}}.txt"
+        archive:
+          none: {}
