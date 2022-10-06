@@ -11,16 +11,18 @@ spec:
     parameters:
     - {name: bucket, value: example-bucket}
     - {name: key, value: example/input.txt}
+    artifacts:
+    - name: input-file
+      s3:
+        bucket: "{{workflow.parameters.bucket}}"
+        key: "{{workflow.parameters.key}}"
  
   templates:
   - name: replace-text
-    arguments:
+    inputs:
       artifacts:
       - name: input-file
         path: /tmp/in.txt
-        s3:
-          bucket: "{{workflow.parameters.bucket}}"
-          key: "{{workflow.parameters.key}}"
     container:
       image: replace-text:latest
       command: [python, rt.py]

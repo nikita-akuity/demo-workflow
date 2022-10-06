@@ -1,0 +1,240 @@
+apiVersion: v1
+data:
+  example-goodbye-s3: |
+    s3:
+      endpoint: s3.amazonaws.com
+      bucket: example-bucket-name
+      region: us-west-1
+      useSDKCreds: true
+      keyFormat: "prefix/goodbyes\
+        /{{workflow.creationTimestamp.Y}}-\
+        {{workflow.creationTimestamp.m}}-\
+        {{workflow.creationTimestamp.d}}\
+        /{{workflow.creationTimestamp.H}}"
+  example-hello-s3: |
+    s3:
+      endpoint: s3.amazonaws.com
+      bucket: example-bucket-name
+      region: us-west-1
+      useSDKCreds: true
+      keyFormat: "prefix/hellos\
+        /{{workflow.creationTimestamp.Y}}-\
+        {{workflow.creationTimestamp.m}}-\
+        {{workflow.creationTimestamp.d}}\
+        /{{workflow.creationTimestamp.H}}"
+kind: ConfigMap
+metadata:
+  name: example-artifact-repositories
+---
+apiVersion: v1
+data:
+  table-name: results
+kind: ConfigMap
+metadata:
+  labels:
+    workflows.argoproj.io/configmap-type: Parameter
+  name: example-parameters
+---
+apiVersion: v1
+data:
+  DB_HOST: ZGIuaG9zdG5hbWU=
+  DB_NAME: ZGF0YWJhc2VfbmFtZQ==
+  DB_PASSWORD: c2VjcmV0UGFzc1cwcmQ=
+  DB_PORT: MzYwMA==
+  DB_USER: ZGF0YWJhc2VfdXNlcg==
+kind: Secret
+metadata:
+  name: example-db-connect
+type: Opaque
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: s3-sqs
+spec:
+  sqs:
+    object-created:
+      filter:
+        expression: (len(body.Records)==1) && (body.Records[0].eventSource == 'aws:s3')
+          && (body.Records[0].eventName startsWith 'ObjectCreated')
+      jsonBody: true
+      queue: example-queue
+      region: us-east-1
+      waitTimeSeconds: 20
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: webhook
+spec:
+  service:
+    ports:
+    - port: 12000
+      targetPort: 12000
+  webhook:
+    greet:
+      endpoint: /greet
+      method: POST
+      port: "12000"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: aws-sqs
+spec:
+  dependencies:
+  - eventName: object-created
+    eventSourceName: s3-sqs
+    filters:
+      data:
+      - path: body.Records.0.s3.bucket.name
+        type: string
+        value:
+        - example-bucket-name
+      - path: body.Records.0.s3.object.key
+        type: string
+        value:
+        - ^prefix/hellos/
+    name: sqs-hello-dep
+  triggers:
+  - template:
+      argoWorkflow:
+        operation: submit
+        parameters:
+        - dest: spec.arguments.parameters.0.value
+          src:
+            dataKey: body.Records.0.s3.bucket.name
+            dependencyName: sqs-hello-dep
+        - dest: spec.arguments.parameters.1.value
+          src:
+            dataKey: body.Records.0.s3.object.key
+            dependencyName: sqs-hello-dep
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: replace-
+            spec:
+              arguments:
+                parameters:
+                - name: bucket
+                  value: example-bucket
+                - name: key
+                  value: ""
+              workflowTemplateRef:
+                name: goodbye-wf-template
+      conditions: sqs-hello-dep
+      name: sqs-workflow-replace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook
+spec:
+  dependencies:
+  - eventName: greet
+    eventSourceName: webhook
+    name: wh-dep
+  triggers:
+  - template:
+      argoWorkflow:
+        operation: submit
+        parameters:
+        - dest: spec.arguments.parameters.0.value
+          src:
+            dataKey: body.names
+            dependencyName: wh-dep
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: greet-
+            spec:
+              arguments:
+                parameters:
+                - name: names
+                  value: to,be,replaced
+              workflowTemplateRef:
+                name: hello-wf-template
+      name: webhook-workflow-trigger
+---
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: goodbye-wf-template
+spec:
+  arguments:
+    parameters:
+    - name: bucket
+      value: example-bucket
+    - name: key
+      value: example/input.txt
+  artifactRepositoryRef:
+    configMap: example-artifact-repositories
+    key: example-goodbye-s3
+  entrypoint: replace-text
+  templates:
+  - arguments:
+      artifacts:
+      - name: input-file
+        path: /tmp/in.txt
+        s3:
+          bucket: '{{workflow.parameters.bucket}}'
+          key: '{{workflow.parameters.key}}'
+    container:
+      args:
+      - --input-file
+      - /tmp/in.txt
+      - --output-file
+      - /tmp/{{pod.name}}.txt
+      - --search
+      - hello
+      - --replace
+      - goodbye
+      command:
+      - python
+      - rt.py
+      image: replace-text:latest
+    name: replace-text
+    outputs:
+      artifacts:
+      - archive:
+          none: {}
+        name: output-file
+        path: /tmp/{{pod.name}}.txt
+---
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: hello-wf-template
+spec:
+  arguments:
+    parameters:
+    - name: names
+      value: ""
+  artifactRepositoryRef:
+    configMap: example-artifact-repositories
+    key: example-hello-s3
+  entrypoint: greet
+  templates:
+  - container:
+      args:
+      - --names
+      - '{{workflow.parameters.names}}'
+      - --greeting
+      - hello
+      - --output-file
+      - /tmp/{{pod.name}}.txt
+      command:
+      - python
+      - greet.py
+      image: greetings:latest
+    name: greet
+    outputs:
+      artifacts:
+      - archive:
+          none: {}
+        name: output-file
+        path: /tmp/{{pod.name}}.txt
