@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: calendar
+spec:
+  calendar:
+    ten-past-hour:
+      schedule: "10 * * * *"
+    every-seven-minutes:
+      interval: 7m
+      metadata:
+        names: "Hong,Jesse,Alex"
+

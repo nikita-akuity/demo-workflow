@@ -1,14 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: webhook
+  name: start-pipeline
 spec:
   dependencies:
     - name: wh-dep
       eventSourceName: webhook
       eventName: greet
+    - name: cal-dep
+      eventSourceName: calendar
+      eventName: every-seven-minutes
   triggers:
     - template:
+        conditions: "wh-dep || cal-dep"
         name: webhook-workflow-trigger
         argoWorkflow:
           operation: submit
@@ -28,4 +32,9 @@ spec:
             - src:
                 dependencyName: wh-dep
                 dataKey: body.names
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: cal-dep
+                dataKey: body.userPayload.names
+                value: "Default,Names"
               dest: spec.arguments.parameters.0.value
