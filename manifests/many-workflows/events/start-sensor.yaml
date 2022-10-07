@@ -17,8 +17,14 @@ spec:
           ea = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","0","p"}
           i = math.random(1,#ea-2)
           j = math.random(i,#ea)
-          slice = {table.unpack(ea, i,j)}
-          event.metadata.names = table.concat(slice, ",")
+          names = ''
+          for n=i,j do
+            names = names..ea[n]
+            if n~=j then
+              names = names..","
+            end
+          end
+          event.metadata.names = names
           return event
   triggers:
     - template:
