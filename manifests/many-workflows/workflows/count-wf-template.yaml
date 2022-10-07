@@ -21,24 +21,29 @@ spec:
   templates:
   - name: count-all
     steps:
+    - - name: debug
+        template: debug
+        arguments:
+          parameters:
+          - name: message
+            value: "{{workflow.parameters.hello-key-prefix}}\
+                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}"
     - - name: list-hello-files
         template: list-files
         arguments:
           artifacts:
           - name: folder
             s3:
-              key: >-
-                {{workflow.parameters.hello-key-prefix}}
-                /{{=trunc(13,workflow.parameters.timestamp) | replace " " "/"}}
+              key: "{{workflow.parameters.hello-key-prefix}}\
+                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}"
       - name: list-goodbye-files
         template: list-files
         arguments:
           artifacts:
           - name: folder
             s3:
-              key: >-
-                {{workflow.parameters.goodbye-key-prefix}}
-                /{{=trunc(13,workflow.parameters.timestamp) | replace " " "/"}}
+              key: "{{workflow.parameters.goodbye-key-prefix}}\
+                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}"
 
   - name: list-files
     inputs:
@@ -49,3 +54,12 @@ spec:
       command: [bash]
       source: |
         ls -lah /workdir
+  - name: debug
+    inputs:
+      parameters:
+      - {name: message, default: ''}
+    script:
+      image: bash
+      command: [bash]
+      source: |
+        echo {{inputs.parameters.message}}
