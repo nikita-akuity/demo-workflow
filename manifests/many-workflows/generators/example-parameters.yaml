@@ -9,3 +9,5 @@ options:
       workflows.argoproj.io/configmap-type: Parameter
 literals:
 - table-name=results
+- hello-key-prefix=prefix/hellos
+- goodbye-key-prefix=prefix/goodbyes

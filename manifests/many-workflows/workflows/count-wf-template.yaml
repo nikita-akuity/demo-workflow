@@ -6,24 +6,46 @@ spec:
   entrypoint: count-all
   arguments:
     parameters:
-    - {name: timestamp, value: "2000-01-01 12:00"}
-  
+    - {name: timestamp, value: "2000-01-01 12:00:00"}
+    - name: hello-key-prefix
+      valueFrom:
+        configMapKeyRef:
+          name: example-parameters
+          key: hello-key-prefix
+    - name: goodbye-key-prefix
+      valueFrom:
+        configMapKeyRef:
+          name: example-parameters
+          key: goodbye-key-prefix
+
   templates:
   - name: count-all
     steps:
-    - - name: list-files
+    - - name: list-hello-files
         template: list-files
         arguments:
-          parameters:
+          artifacts:
           - name: folder
-            value: "{{workflow.parameters.timestamp}}"
+            s3:
+              key: >-
+                {{workflow.parameters.hello-key-prefix}}
+                /{{=trunc(13,workflow.parameters.timestamp) | replace " " "/"}}
+      - name: list-goodbye-files
+        template: list-files
+        arguments:
+          artifacts:
+          - name: folder
+            s3:
+              key: >-
+                {{workflow.parameters.goodbye-key-prefix}}
+                /{{=trunc(13,workflow.parameters.timestamp) | replace " " "/"}}
 
   - name: list-files
     inputs:
-      parameters:
-      - {name: folder, default: "."}
+      artifacts:
+      - {name: folder, path: "/workdir"}
     script:
       image: bash
       command: [bash]
       source: |
-        echo {{inputs.parameters.folder}}
+        ls -lah /workdir
