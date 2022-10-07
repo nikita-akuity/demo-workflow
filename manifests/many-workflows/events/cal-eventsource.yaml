@@ -5,8 +5,7 @@ metadata:
 spec:
   calendar:
     ten-past-hour:
-    #TODO: After debugging repace to 10 * * * *
-      schedule: "*/5 * * * *"
+      schedule: "10 * * * *"
       metadata:
         targetTime: ''
     every-seven-minutes:
