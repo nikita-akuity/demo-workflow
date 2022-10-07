@@ -1,0 +1,80 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: script-templates
+spec:
+  templates:
+  - name: list-files
+    inputs:
+      artifacts:
+      - {name: folder, path: "/workdir"}
+    script:
+      image: python:3
+      command: [python]
+      source: |
+        import sys,json
+        from os import listdir
+        from os.path import isfile, join
+        onlyfiles = [f for f in listdir("/workdir") if isfile(join("/workdir", f))]
+        json.dump(onlyfiles, sys.stdout)
+
+  - name: count
+    inputs:
+      parameters:
+      - {name: string, default: default}
+      artifacts:
+      - name: input-file
+        path: /tmp/in.txt
+    container:
+      image: count:latest
+      command: [python, count.py]
+      args: ['--input-file', '/tmp/in.txt', '--string', "{{inputs.parameters.string}}"]
+  
+  - name: sum
+    inputs:
+      parameters:
+      - {name: numbers, default: '["0","0","0"]'}
+    script:
+      image: python:3
+      command: [python]
+      source: |
+        import json
+        numbers = json.loads('{{inputs.parameters.numbers}}')
+        print(sum(map(int,numbers)))
+
+  - name: write-to-db
+    inputs:
+      parameters:
+      - {name: table-name}
+      - {name: db-connection-secret}
+      - {name: timestamp, default: "2000-01-01 12:00:00"}
+      - {name: sum-hello, default: 'NULL'}
+      - {name: sum-goodbye, default: 'NULL'}
+      artifacts:
+      - name: sql
+        path: /tmp/query.sql
+        raw:
+          data: |
+            CREATE TABLE IF NOT EXISTS {{inputs.parameters.table-name}} (
+              Id int NOT NULL AUTO_INCREMENT,
+              WorkflowName varchar(255) NOT NULL,
+              TargetDateTime datetime NOT NULL,
+              SumHello int(32),
+              SumGoodbye int(32),
+              PRIMARY KEY (Id)
+            );
+            INSERT INTO {{inputs.parameters.table-name}} (WorkflowName, WorkflowDateTime, SumHello, SumGoodbye)
+            VALUES (
+              '{{workflow.name}}',
+              '{{inputs.parameters.timestamp}}',
+              {{inputs.parameters.sum-hello}},
+              {{inputs.parameters.sum-goodbye}}
+            );
+    script:
+      image: mysql:8-debian
+      envFrom:
+      - secretRef:
+          name: "{{inputs.parameters.db-connection-secret}}"
+      command: [bash]
+      source: |
+        mysql --host=$DB_HOST --port=$DB_PORT --user=$DB_USER --password=$DB_PASSWORD $DB_NAME < /tmp/query.sql

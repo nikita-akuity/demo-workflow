@@ -17,49 +17,88 @@ spec:
         configMapKeyRef:
           name: example-parameters
           key: goodbye-key-prefix
-
+    - name: mysql-table-name
+      valueFrom:
+        configMapKeyRef:
+          name: example-parameters
+          key: table-name
+    - name: mysql-connection-secret
+      value: example-db-connect
+    
   templates:
   - name: count-all
     steps:
-    - - name: debug
-        template: debug
+    - - name: split
+        template: branch
         arguments:
           parameters:
-          - name: message
-            value: "{{workflow.parameters.hello-key-prefix}}\
-                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}"
-    - - name: list-hello-files
-        template: list-files
+          - name: key-prefix
+            value: "{{item.prefix}}"
+          - name: string
+            value: "{{item.string}}"
+        withItems:
+        - prefix: "{{workflow.parameters.hello-key-prefix}}"
+          string: hello
+        - prefix: "{{workflow.parameters.goodbye-key-prefix}}"
+          string: goodbye
+    - - name: write-result
+        templateRef:
+          name: script-templates
+          template: write-to-db
         arguments:
-          artifacts:
-          - name: folder
-            s3:
-              key: "{{workflow.parameters.hello-key-prefix}}\
-                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}"
-      - name: list-goodbye-files
-        template: list-files
-        arguments:
-          artifacts:
-          - name: folder
-            s3:
-              key: "{{workflow.parameters.goodbye-key-prefix}}\
-                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}"
+          parameters:
+          - name: timestamp
+            value: "{{workflow.parameters.timestamp}}"
+          - name: table-name
+            value: "{{workflow.parameters.mysql-table-name}}"
+          - name: db-connection-secret
+            value: "{{workflow.parameters.mysql-connection-secret}}"
+          - {name: sum-hello, value: "{{=jsonpath(steps.split.outputs.sum),'$.0'}}"}
+          - {name: sum-goodbye, value: "{{=jsonpath(steps.split.outputs.sum),'$.1'}}"}
 
-  - name: list-files
-    inputs:
-      artifacts:
-      - {name: folder, path: "/workdir"}
-    script:
-      image: bash
-      command: [bash]
-      source: |
-        ls -lah /workdir
-  - name: debug
+#################################################
+
+  - name: branch
     inputs:
       parameters:
-      - {name: message, default: ''}
-    script:
-      image: bash
-      command: [bash]
-      source: |
-        echo {{inputs.parameters.message}}
+      - {name: key-prefix}
+      - {name: string}
+    steps:
+    - - name: list-files
+        templateRef:
+          name: script-templates
+          template: ist-files
+        arguments:
+          artifacts:
+          - name: folder
+            s3:
+              key: "{{inputs.parameters.key-prefix}}\
+                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}"
+    - - name: count-each
+        templateRef:
+          name: script-templates
+          template: count
+        arguments:
+          parameters:
+          - name: string
+            value: "{{inputs.parameters.string}}"
+          artifacts:
+          - name: input-file
+            s3:
+              key: "{{inputs.parameters.key-prefix}}\
+                    /{{item}}"
+        withParam: "{{steps.list-files.outputs.result}}"
+    - - name: summarize
+        templateRef:
+          name: script-templates
+          template: sum
+        arguments:
+          parameters:
+          - name: numbers
+            value: "{{steps.count-each.outputs.result}}"
+    outputs:
+      parameters:
+      - name: sum
+        valueFrom:
+          parameter: "{{steps.summarize.outputs.result}}"
+

@@ -5,3 +5,4 @@ resources:
 - hello-wf-template.yaml
 - goodbye-wf-template.yaml
 - count-wf-template.yaml
+- script-templates.yaml
