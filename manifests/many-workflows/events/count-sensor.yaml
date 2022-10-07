@@ -8,7 +8,7 @@ spec:
       eventSourceName: calendar
       eventName: ten-past-hour
       transform:
-      #set userPayload.targetTime to 1 hour before the event
+      #set metadata.targetTime to 1 hour before the event
         script: |-
           pattern="(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)"
           year,month,day,hour,min,sec=event.eventTime:match(pattern)

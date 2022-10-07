@@ -10,6 +10,16 @@ spec:
     - name: cal-dep
       eventSourceName: calendar
       eventName: every-seven-minutes
+      transform:
+      #randomize metadata.names
+        script: |-
+          math.randomseed(os.time())
+          ea = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","0","p"}
+          i = math.random(1, #ea-2)
+          j = math.random(i, #ea-i)
+          slice = {table.unpack(ea, i,j)}
+          event.metadata.names = table.concat(slice, ",")
+          return event
   triggers:
     - template:
         conditions: "wh-dep || cal-dep"
