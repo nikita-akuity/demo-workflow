@@ -63,7 +63,7 @@ spec:
               SumGoodbye int(32),
               PRIMARY KEY (Id)
             );
-            INSERT INTO {{inputs.parameters.table-name}} (WorkflowName, WorkflowDateTime, SumHello, SumGoodbye)
+            INSERT INTO {{inputs.parameters.table-name}} (WorkflowName, TargetDateTime, SumHello, SumGoodbye)
             VALUES (
               '{{workflow.name}}',
               '{{inputs.parameters.timestamp}}',

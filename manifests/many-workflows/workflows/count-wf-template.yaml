@@ -53,8 +53,10 @@ spec:
             value: "{{workflow.parameters.mysql-table-name}}"
           - name: db-connection-secret
             value: "{{workflow.parameters.mysql-connection-secret}}"
-          - {name: sum-hello, value: "{{=jsonpath(steps.split.outputs.sum),'$.0'}}"}
-          - {name: sum-goodbye, value: "{{=jsonpath(steps.split.outputs.sum),'$.1'}}"}
+          - name: sum-hello
+            value: "{{=jsonpath(steps.split.outputs.parameters.sum,'$[0]')}}"
+          - name: sum-goodbye
+          value: "{{=jsonpath(steps.split.outputs.parameters.sum,'$[1]')}}"
 
 #################################################
 
