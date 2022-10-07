@@ -14,7 +14,9 @@ spec:
     - - name: list-files
         template: list-files
         arguments:
-          folder: "{{workflow.parameters.timestamp}}"
+          parameters:
+          - name: folder
+            value: "{{workflow.parameters.timestamp}}"
 
   - name: list-files
     inputs:
