@@ -35,6 +35,6 @@ spec:
               dest: spec.arguments.parameters.0.value
             - src:
                 dependencyName: cal-dep
-                dataKey: body.userPayload.names
+                dataKey: userPayload.names
                 value: "Default,Names"
               dest: spec.arguments.parameters.0.value
