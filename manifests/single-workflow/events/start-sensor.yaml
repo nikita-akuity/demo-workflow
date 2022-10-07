@@ -38,6 +38,7 @@ spec:
   triggers:
     - template:
         name: webhook-workflow-trigger
+        conditions: "wh-dep || cal-dep"
         argoWorkflow:
           operation: submit
           source:
