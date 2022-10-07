@@ -18,12 +18,12 @@ spec:
           result = "["
           len = math.random(1,8)
           for i=1,len do 
-            local start = math.random(1,#ea-5)
-            local end = math.random(i,#ea)
+            local s = math.random(1,#ea-5)
+            local e = math.random(i,#ea)
             local names = '"'
-            for n=start,end do
+            for n=s,e do
               names = names..ea[n]
-              if n~=end then
+              if n~=e then
                 names = names..","
               end
             end
@@ -31,6 +31,7 @@ spec:
             result = result..names
             if i~=len then
               result = result..","
+            end
           end
           result = result.."]"
           event.metadata.names = result
