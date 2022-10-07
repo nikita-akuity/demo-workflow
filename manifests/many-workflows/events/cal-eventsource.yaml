@@ -7,6 +7,8 @@ spec:
     ten-past-hour:
     #TODO: After debugging repace to 10 * * * *
       schedule: "*/5 * * * *"
+      metadata:
+        targetTime: ''
     every-seven-minutes:
       interval: 7m
       metadata:

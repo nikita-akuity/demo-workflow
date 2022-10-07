@@ -13,7 +13,8 @@ spec:
           pattern="(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)"
           year,month,day,hour,min,sec=event.eventTime:match(pattern)
           target_time=os.time({day=day,month=month,year=year,hour=hour-1,min=min,sec=sec})
-          event.metadata.targetTime=os.date("%Y-%m-%d %H:%M:%S")
+          event.metadata.targetTime=os.date("%Y-%m-%d %H:%M:%S", target_time)
+          return event
   triggers:
     - template:
         name: webhook-workflow-trigger
