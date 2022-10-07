@@ -86,6 +86,7 @@ spec:
           - name: input-file
             s3:
               key: "{{inputs.parameters.key-prefix}}\
+                    /{{=sprig.replace(' ','/',sprig.trunc(13,workflow.parameters.timestamp))}}\
                     /{{item}}"
         withParam: "{{steps.list-files.outputs.result}}"
     - - name: summarize
@@ -101,4 +102,3 @@ spec:
       - name: sum
         valueFrom:
           parameter: "{{steps.summarize.outputs.result}}"
-
