@@ -15,8 +15,8 @@ spec:
         script: |-
           math.randomseed(os.time())
           ea = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","0","p"}
-          i = math.random(1, #ea-2)
-          j = math.random(i, #ea-i)
+          i = math.random(1,#ea-2)
+          j = math.random(i,#ea)
           slice = {table.unpack(ea, i,j)}
           event.metadata.names = table.concat(slice, ",")
           return event
