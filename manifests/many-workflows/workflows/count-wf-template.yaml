@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: count-wf-template
+spec:
+  entrypoint: count-all
+  arguments:
+    parameters:
+    - {name: timestamp, value: "2000-01-01 12:00"}
+  
+  templates:
+  - name: count-all
+    steps:
+    - - name: list-files
+        template: list-files
+        arguments:
+          folder: "{{workflow.parameters.timestamp}}"
+
+  - name: list-files
+    inputs:
+      parameters:
+      - {name: folder, default: "."}
+    script:
+      image: bash
+      command: [bash]
+      source: |
+        echo {{inputs.parameters.folder}}

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: count-all
+spec:
+  dependencies:
+    - name: cal-dep
+      eventSourceName: calendar
+      eventName: ten-past-hour
+  triggers:
+    - template:
+        name: webhook-workflow-trigger
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: count-
+              spec:
+                arguments:
+                  parameters:
+                  - {name: timestamp, value: ""}
+                workflowTemplateRef:
+                  name: count-wf-template
+          parameters:
+            - src:
+                dependencyName: cal-dep
+                dataKey: eventTime
+              dest: spec.arguments.parameters.0.value

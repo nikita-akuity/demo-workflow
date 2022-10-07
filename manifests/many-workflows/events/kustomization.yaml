@@ -3,7 +3,8 @@ kind: Kustomization
 
 resources:
 - cal-eventsource.yaml
+- count-sensor.yaml
+- replace-sensor.yaml
 - sqs-eventsource.yaml
-- sqs-sensor.yaml
-- wh-eventsource.yaml
 - start-sensor.yaml
+- wh-eventsource.yaml
