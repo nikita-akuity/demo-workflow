@@ -2,11 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- container-templates.yaml
-- script-templates.yaml
-- single-wf-template.yaml
-- wh-eventsource.yaml
-- wh-sensor.yaml
+- workflows
+- events
 
 generators:
 - generators/example-parameters.yaml

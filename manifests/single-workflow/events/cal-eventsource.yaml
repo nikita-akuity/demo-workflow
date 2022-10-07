@@ -1,0 +1,11 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: calendar
+spec:
+  calendar:
+    every-37-minutes:
+      interval: 37m
+      metadata:
+        names: '["Alice,Bob","Mortimer"]'
+

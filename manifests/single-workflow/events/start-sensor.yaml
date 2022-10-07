@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: start-pipeline
+spec:
+  dependencies:
+    - name: wh-dep
+      eventSourceName: webhook
+      eventName: trigger-pipeline
+    - name: cal-dep
+      eventSourceName: calendar
+      eventName: every-37-minutes
+      transform:
+      #randomize metadata.names
+        script: |-
+          math.randomseed(os.time())
+          ea = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","0","p"}
+          result = "["
+          len = math.random(1,8)
+          for i=1,len do 
+            local start = math.random(1,#ea-5)
+            local end = math.random(i,#ea)
+            local names = '"'
+            for n=start,end do
+              names = names..ea[n]
+              if n~=end then
+                names = names..","
+              end
+            end
+            names = names..'"'
+            result = result..names
+            if i~=len then
+              result = result..","
+          end
+          result = result.."]"
+          event.metadata.names = result
+          return event
+  triggers:
+    - template:
+        name: webhook-workflow-trigger
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: greet-and-count-
+              spec:
+                arguments:
+                  parameters:
+                  - {name: input-payload, value: "[]"}
+                workflowTemplateRef:
+                  name: single-wf-template
+          parameters:
+          - src:
+              dependencyName: wh-dep
+              dataKey: body
+            dest: spec.arguments.parameters.0.value
+          - src:
+              dependencyName: cal-dep
+              dataKey: metadata.names
+            dest: spec.arguments.parameters.0.value
