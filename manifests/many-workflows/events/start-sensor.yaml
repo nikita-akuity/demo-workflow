@@ -46,11 +46,11 @@ spec:
                   name: hello-wf-template
           parameters:
             - src:
-                dependencyName: wh-dep
-                dataKey: body.names
-              dest: spec.arguments.parameters.0.value
-            - src:
                 dependencyName: cal-dep
                 dataKey: metadata.names
                 value: "Default,Names"
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: wh-dep
+                dataKey: body.names
               dest: spec.arguments.parameters.0.value
