@@ -17,7 +17,7 @@ spec:
           return event
   triggers:
     - template:
-        name: webhook-workflow-trigger
+        name: count-trigger
         argoWorkflow:
           operation: submit
           source:

@@ -18,7 +18,7 @@ spec:
           - "^prefix/hellos/"
   triggers:
   - template:
-      name: sqs-workflow-replace
+      name: replace-trigger
       conditions: sqs-hello-dep
       argoWorkflow:
         operation: submit

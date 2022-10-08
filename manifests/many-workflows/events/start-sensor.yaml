@@ -29,7 +29,7 @@ spec:
   triggers:
     - template:
         conditions: "wh-dep || cal-dep"
-        name: webhook-workflow-trigger
+        name: start-pipeline-trigger
         argoWorkflow:
           operation: submit
           source:
