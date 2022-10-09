@@ -34,7 +34,7 @@ When change in `/images` folder is detected, GitHub triggers "Build and Promote"
 
 #### Promote
 * Checkout into main branch of [nikita-akuity/demo-workflow-delivery](https://github.com/nikita-akuity/demo-workflow-delivery) repository
-* Run `kustomize set image <subfolder-name><image-url>:<tag>`
+* Run `kustomize set image <subfolder-name>=<image-url>:<tag>`
   * in `apps/<subfolder-name>/env/dev` if triggered event is push in branch
   * in `apps/<subfolder-name>/env/stage` if triggered event is tag `vx.x.x`
 * Push changes to [nikita-akuity/demo-workflow-delivery](https://github.com/nikita-akuity/demo-workflow-delivery) repository
