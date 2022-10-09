@@ -47,3 +47,27 @@ When change in `/manifests` folder is detected, GitHub triggers "Update Kustomiz
 * Checkout into main branch of [nikita-akuity/demo-workflow-delivery](https://github.com/nikita-akuity/demo-workflow-delivery) repository
 * Update `resources` list in the `apps/<subfolder-name>/env/base/kustomization.yaml`, setting the first element of the list into `"https://github.com/<repository>//manifests/<subfolder-name>/?ref=<sha>"`
 * Push changes to [nikita-akuity/demo-workflow-delivery](https://github.com/nikita-akuity/demo-workflow-delivery) repository
+
+# Images in this repository
+
+All images are simple python based scripts:
+* [greetings](images/greetings)  
+  Take a string argument `--names` (e.g.`"name1,name2"`) and create a file  
+  ```
+  hello name1
+  hello name2
+  ```
+* [replace-text](images/replace-text)  
+  Take an input text file, replace `hello` to `goodbye` and save result into different file, e.g.  
+  ```
+  goodbye name1
+  goodbye name2
+  ```
+* [count](images/count)  
+  Take an input file, count number of string occurances there and print the result number in stdout
+
+# Applications in this repository
+
+Please check corresponding folders for the detailed description of each application:
+* [single workflow](manifests/single-workflow/)
+* [many workflows](manifests/many-workflows/)
