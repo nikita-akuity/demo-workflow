@@ -19,6 +19,8 @@ There are two possibe ways to trigger the CI pipelines:
 * Update images
 * Update manifests
 
+![CI scheme](assets/ci.png "CI scheme")
+
 ### Update images
 When change in `/images` folder is detected, GitHub triggers "Build and Promote" Action, which does build and promote for the each subfolder.
 
