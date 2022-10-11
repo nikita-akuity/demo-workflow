@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: run-goodbyes-wf-template
+spec:
+  entrypoint: run-goodbyes
+  arguments:
+    parameters:
+    - name: records
+      value: "[]"
+    - name: bucket
+      value: example-bucket-name
+    - name: prefix
+      valueFrom:
+        configMapKeyRef:
+          name: example-parameters
+          key: hello-key-prefix
+  templates:
+  - name: run-goodbyes
+    steps:
+    - - name: trigger-workflows
+        template: trigger-goodbye-workflow
+        arguments:
+          parameters:
+          - name: bucket
+            value: "{{item.s3.bucket.name}}"
+          - name: key
+            value: "{{item.s3.object.key}}"
+        withParam: "{{workflow.parameters.records}}"
+        when: >-
+          {{item.eventSource}} == 'aws:s3' &&
+          {{item.s3.bucket.name}} == {{workflow.parameters.bucket}} &&
+          sprig.hasPrefix('ObjectCreated',{{item.eventName}}) &&
+          sprig.hasPrefix({{workflow.parameters.prefix}},{{item.s3.object.key}})
+  
+  - name: trigger-goodbye-workflow
+    inputs:
+      parameters:
+        - name: bucket
+        - name: key
+        - name: workflowtemplate
+          default: goodbye-wf-template
+    resource:
+      action: create
+      manifest: |
+        apiVersion: argoproj.io/v1alpha1
+        kind: Workflow
+        metadata:
+          generateName: goodbye-
+        spec:
+          arguments:
+            parameters:
+            - {name: bucket, value: {{inputs.parameters.bucket}}}
+            - {name: key, value: {{inputs.parameters.key}}}
+          workflowTemplateRef:
+            name: {{inputs.parameters.workflowtemplate}}

@@ -7,15 +7,6 @@ spec:
     - name: sqs-hello-dep
       eventSourceName: s3-sqs
       eventName: object-created
-      filters:
-        data:
-        - path: body.Records.0.s3.bucket.name
-          type: string
-          value: ["example-bucket-name"]
-        - path: body.Records.0.s3.object.key
-          type: string
-          value:
-          - "^prefix/hellos/"
   triggers:
   - template:
       name: replace-trigger
@@ -27,20 +18,15 @@ spec:
             apiVersion: argoproj.io/v1alpha1
             kind: Workflow
             metadata:
-              generateName: replace-
+              generateName: run-goodbyes-
             spec:
               arguments:
                 parameters:
-                - {name: bucket, value: example-bucket}
-                - {name: key, value: ''}
+                - {name: records, value: "[]"}
               workflowTemplateRef:
-                name: goodbye-wf-template
+                name: run-goodbyes-wf-template
         parameters:
         - src:
             dependencyName: sqs-hello-dep
-            dataKey: body.Records.0.s3.bucket.name
+            dataKey: body.Records
           dest: spec.arguments.parameters.0.value
-        - src:
-            dependencyName: sqs-hello-dep
-            dataKey: body.Records.0.s3.object.key
-          dest: spec.arguments.parameters.1.value
